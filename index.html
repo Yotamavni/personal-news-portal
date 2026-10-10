@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>הדסק שלי | פורטל אישי</title>
+<style>
+:root{font-family:Arial,'Segoe UI',sans-serif;color:#1c2430;background:#f4f5f6}*{box-sizing:border-box}body{margin:0}header{background:#111b29;color:white;padding:25px max(22px,calc((100vw - 1150px)/2))}header h1{margin:0;font-size:34px;letter-spacing:-1px}header p{color:#b7c4d1;margin:8px 0 0}.bar{background:white;border-bottom:1px solid #ddd;position:sticky;top:0;z-index:2}.wrap{max-width:1150px;margin:auto;padding:0 20px}.nav{display:flex;align-items:center;gap:8px;overflow-x:auto;padding:12px 0}.nav button,.actions button{border:1px solid #d5dce3;background:white;border-radius:7px;padding:10px 13px;cursor:pointer;white-space:nowrap}.nav button.active{background:#111b29;color:white}.actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center;padding:20px 0}.actions input{padding:12px;border:1px solid #d5dce3;border-radius:7px;min-width:230px;flex:1}.actions button.primary{background:#d44730;color:white;border-color:#d44730}main{min-height:55vh}.meta{display:flex;justify-content:space-between;align-items:center;color:#687482;font-size:13px;border-bottom:2px solid #172232;padding-bottom:10px}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin:18px 0 40px}.card{background:white;border:1px solid #e1e4e7;border-radius:9px;padding:18px;display:flex;flex-direction:column;min-height:190px}.card .source{font-size:12px;color:#b63c2d;font-weight:bold}.card h2{font-size:19px;line-height:1.45;margin:12px 0}.card p{color:#53606e;font-size:14px;line-height:1.6;flex:1}.card .foot{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:auto}.card a{color:#182f55;font-weight:bold;text-decoration:none}.card button{border:0;background:#edf0f3;border-radius:6px;padding:8px;cursor:pointer}.empty{background:white;border:1px dashed #bcc5ce;border-radius:10px;padding:55px 25px;text-align:center;margin-top:18px}.empty h2{margin:0 0 12px}.empty p{color:#657282;line-height:1.7}.notice{font-size:13px;color:#657282;padding-bottom:30px}footer{border-top:1px solid #ddd;padding:22px;color:#6a7480;font-size:12px}@media(max-width:850px){.grid{grid-template-columns:repeat(2,1fr)}}@media(max-width:560px){.grid{grid-template-columns:1fr}header h1{font-size:28px}}
+</style>
+</head>
+<body>
+<header><h1>הדסק שלי<span style="color:#e05b42">.</span></h1><p>פורטל החדשות, המוזיקה והתרבות האישי שלי</p></header>
+<div class="bar"><div class="wrap nav" id="nav"></div></div>
+<main class="wrap">
+<div class="actions"><input id="search" type="search" placeholder="חיפוש בכתבות..." aria-label="חיפוש כתבות"><button class="primary" id="refresh">↻ רענן חדשות</button><button id="saved">☆ כתבות שמורות</button></div>
+<div class="meta"><strong id="section">כל הכתבות</strong><span id="status">ממתין לחיבור מקורות החדשות</span></div>
+<div id="content"></div>
+<p class="notice">הכותרות וקישורי המקור יגיעו מפידים פתוחים. כתבות בתשלום ייפתחו באתר המקורי.</p>
+</main><footer><div class="wrap">הדסק שלי · אתר אישי · מקורות המידע שייכים למפרסמים המקוריים</div></footer>
+<script>
+const categories=['הכל','ישראל','עולם','תעשיית מוזיקה','אלבומים וסינגלים','אמנות','ספרים','עסקים'];
+let items=[],active='הכל',savedOnly=false;
+const $=id=>document.getElementById(id);
+const bookmarks=new Set(JSON.parse(localStorage.getItem('portalBookmarks')||'[]'));
+function saveBookmarks(){localStorage.setItem('portalBookmarks',JSON.stringify([...bookmarks]));}
+function safeURL(value){try{let u=new URL(value);return ['https:','http:'].includes(u.protocol)?u.href:'#'}catch{return '#'}}
+function node(tag,cls,txt){const el=document.createElement(tag);if(cls)el.className=cls;if(txt!==undefined)el.textContent=txt;return el}
+function renderNav(){const nav=$('nav');nav.replaceChildren();categories.forEach(c=>{const b=node('button',active===c?'active':'',c);b.onclick=()=>{active=c;savedOnly=false;renderNav();render()};nav.append(b)})}
+function render(){const q=$('search').value.trim().toLocaleLowerCase();const list=items.filter(x=>(active==='הכל'||x.category===active)&&(!savedOnly||bookmarks.has(x.link))&&[x.title,x.summary,x.source].join(' ').toLocaleLowerCase().includes(q));$('section').textContent=savedOnly?'כתבות שמורות':active==='הכל'?'כל הכתבות':active;const area=$('content');area.replaceChildren();if(!list.length){const e=node('div','empty');e.append(node('h2','',items.length?'לא נמצאו כתבות מתאימות':'הפורטל מוכן לחיבור חדשות'),node('p','',items.length?'נסה לבחור מדור אחר או לשנות את החיפוש.':'בשלב הבא נחבר מקורות RSS ואת מנגנון העדכון האוטומטי. לאחר מכן יופיעו כאן כותרות אמיתיות.'));area.append(e);return}const grid=node('div','grid');list.forEach(x=>{const card=node('article','card');card.append(node('div','source',`${x.source||'מקור לא ידוע'} · ${x.category||'כללי'}`),node('h2','',x.title||'ללא כותרת'),node('p','',x.summary||''));const foot=node('div','foot');const a=node('a','','לכתבה ←');a.href=safeURL(x.link);a.target='_blank';a.rel='noopener noreferrer';const b=node('button','',bookmarks.has(x.link)?'★ נשמר':'☆ שמור');b.onclick=()=>{bookmarks.has(x.link)?bookmarks.delete(x.link):bookmarks.add(x.link);saveBookmarks();render()};foot.append(a,b);card.append(foot);grid.append(card)});area.append(grid)}
+async function loadNews(){const btn=$('refresh');btn.disabled=true;$('status').textContent='בודק עדכונים...';try{const response=await fetch('news.json?ts='+Date.now(),{cache:'no-store'});if(!response.ok)throw new Error('קובץ החדשות עדיין לא קיים');const data=await response.json();if(!Array.isArray(data))throw new Error('מבנה נתונים לא תקין');items=data.filter(x=>x&&typeof x.title==='string'&&typeof x.link==='string');$('status').textContent=`${items.length} כתבות · עודכן בבדיקה האחרונה`;render()}catch(err){$('status').textContent='מקורות החדשות טרם חוברו';render()}finally{btn.disabled=false}}
+$('search').addEventListener('input',render);$('refresh').addEventListener('click',loadNews);$('saved').addEventListener('click',()=>{savedOnly=!savedOnly;render()});renderNav();loadNews();
+</script>
+</body></html>
