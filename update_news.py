@@ -1,64 +1,1192 @@
-import json, re, html, urllib.request, urllib.parse, xml.etree.ElementTree as ET
-from datetime import datetime, timezone
-from email.utils import parsedate_to_datetime
-from pathlib import Path
-
-FEEDS = [
- ('BBC World','עולם','https://feeds.bbci.co.uk/news/world/rss.xml'),
- ('BBC Technology','עולם','https://feeds.bbci.co.uk/news/technology/rss.xml'),
- ('NPR Music','אלבומים וסינגלים','https://feeds.npr.org/1039/rss.xml'),
- ('Pitchfork','אלבומים וסינגלים','https://pitchfork.com/rss/news/'),
- ('Resident Advisor','תעשיית מוזיקה','https://ra.co/xml/rss.xml'),
- ('The Guardian Culture','אמנות','https://www.theguardian.com/culture/rss'),
- ('The Guardian Books','ספרים','https://www.theguardian.com/books/rss'),
- ('The Guardian Business','עסקים','https://www.theguardian.com/uk/business/rss'),
- ('כאן חדשות','ישראל','https://www.kan.org.il/rss/'),
+[
+  {
+    "title": "Trump announces deal for Russian diesel as Zelensky calls it a gift to Putin",
+    "link": "https://www.bbc.co.uk/news/articles/cm1dwgr666wno?at_medium=RSS&at_campaign=rss",
+    "summary": "Ukraine's president sharply criticised the move, calling it an \"investment in war that must be ended, not prolonged\".",
+    "source": "BBC World",
+    "category": "עולם"
+  },
+  {
+    "title": "Analysis: Trump's shock Russia deal highlights mounting pressure to curb fuel prices",
+    "link": "https://www.bbc.co.uk/news/articles/c5lye9z4xw4yo?at_medium=RSS&at_campaign=rss",
+    "summary": "The US president hopes to ease his party's pain before next month's midterm elections, writes the BBC's North America correspondent.",
+    "source": "BBC World",
+    "category": "עולם"
+  },
+  {
+    "title": "Three men found guilty of murdering Australian brothers and US friend in Mexico",
+    "link": "https://www.bbc.co.uk/news/articles/cj5ynwnye009o?at_medium=RSS&at_campaign=rss",
+    "summary": "Jake and Callum Robinson and their friend Carter Rhoad were on a surf trip when they were killed in an apparent botched robbery.",
+    "source": "BBC World",
+    "category": "עולם"
+  },
+  {
+    "title": "Flydubai attacker began a 'drift towards extremism and terrorism' in Australia, UAE says",
+    "link": "https://www.bbc.co.uk/news/articles/cw3dj5n538jpo?at_medium=RSS&at_campaign=rss",
+    "summary": "The United Arab Emirates' attorney-general also alleges the co-pilot was trying to crash the plane into Tel Aviv's airport.",
+    "source": "BBC World",
+    "category": "עולם"
+  },
+  {
+    "title": "Hurricane Isaias downgraded after making landfall in Florida",
+    "link": "https://www.bbc.co.uk/news/articles/c3vgx4450v2lo?at_medium=RSS&at_campaign=rss",
+    "summary": "Hundreds of thousands of households are without power in Florida and Alabama as Isaias continues its path across south-eastern US.",
+    "source": "BBC World",
+    "category": "עולם"
+  },
+  {
+    "title": "Rogue Anthropic AI agent gave police fake tip in unsolved murder case",
+    "link": "https://www.bbc.co.uk/news/articles/cqkg50j1yd5lo?at_medium=RSS&at_campaign=rss",
+    "summary": "Philadelphia police said the tip was \"flagged as spam\", but criticised the tech company for taking more than two months to detect and report the breach.",
+    "source": "BBC World",
+    "category": "עולם"
+  },
+  {
+    "title": "Powerful magnitude 7.7 earthquake hits Panama, damaging buildings",
+    "link": "https://www.bbc.co.uk/news/articles/c620r39zdp9wo?at_medium=RSS&at_campaign=rss",
+    "summary": "Tsunami warnings are issued for neighbouring countries as videos of destruction circulate online.",
+    "source": "BBC World",
+    "category": "עולם"
+  },
+  {
+    "title": "'Stain on the country': Trump criticises Norway over Nobel Peace Prize",
+    "link": "https://www.bbc.co.uk/news/articles/ckgj921e14jdo?at_medium=RSS&at_campaign=rss",
+    "summary": "The US president told a rally he had \"never heard of\" the winner, former International Criminal Court judge Navi Pillay.",
+    "source": "BBC World",
+    "category": "עולם"
+  },
+  {
+    "title": "US country music star Ella Langley cancels show due to 'security threat'",
+    "link": "https://www.bbc.co.uk/news/articles/cm79pdlywqd4o?at_medium=RSS&at_campaign=rss",
+    "summary": "Police say they checked the concert venue in Tulsa, Oklahoma but \"could not find any threat\".",
+    "source": "BBC World",
+    "category": "עולם"
+  },
+  {
+    "title": "JD Vance casts doubt on firing squad execution and says he would not watch it",
+    "link": "https://www.bbc.co.uk/news/articles/ck20r39nl3qzo?at_medium=RSS&at_campaign=rss",
+    "summary": "The planned execution of Nidal Hasan by firing squad would be the first military execution in more than 60 years.",
+    "source": "BBC World",
+    "category": "עולם"
+  },
+  {
+    "title": "US unveils sanctions on ICC in move court condemns as 'assault on rule of law'",
+    "link": "https://www.bbc.co.uk/news/articles/cj20vkkx3rdvo?at_medium=RSS&at_campaign=rss",
+    "summary": "Several member states of the international tribunal, including the UK, say they \"strongly disagree\" with the sanctions.",
+    "source": "BBC World",
+    "category": "עולם"
+  },
+  {
+    "title": "Man named Hitler Mussolini elected mayor in Peru",
+    "link": "https://www.bbc.co.uk/news/articles/cmdxwn9dr42yo?at_medium=RSS&at_campaign=rss",
+    "summary": "The left-wing candidate won a narrow victory in a remote district in the Peruvian Andes, exit polls show.",
+    "source": "BBC World",
+    "category": "עולם"
+  },
+  {
+    "title": "Russian search engine Yandex struggles after Ukrainian strikes on data centres",
+    "link": "https://www.bbc.co.uk/news/articles/c68xzqqn4ekro?at_medium=RSS&at_campaign=rss",
+    "summary": "Often dubbed \"Russia's Google\", the tech firm admits customers may experience disruption to digital services due to the attacks.",
+    "source": "BBC World",
+    "category": "עולם"
+  },
+  {
+    "title": "Ethiopia warns Eritrea it will defend itself after troops cross border",
+    "link": "https://www.bbc.co.uk/news/articles/c65ynvw250y1o?at_medium=RSS&at_campaign=rss",
+    "summary": "Truckloads of Eritrean soldiers have been seen driving into Ethiopia, which has reportedly responded with drone strikes.",
+    "source": "BBC World",
+    "category": "עולם"
+  },
+  {
+    "title": "Commentator Katie Zacharia picked as new White House press secretary",
+    "link": "https://www.bbc.co.uk/news/articles/c5rmy73zr0rro?at_medium=RSS&at_campaign=rss",
+    "summary": "The conservative commentator currently works as a communications adviser at Trump Media & Technology Group.",
+    "source": "BBC World",
+    "category": "עולם"
+  },
+  {
+    "title": "Thieves steal 30,000 bottles of wine worth €5m in Italy, reports say",
+    "link": "https://www.bbc.co.uk/news/articles/cme3xl8ln2vko?at_medium=RSS&at_campaign=rss",
+    "summary": "The heist at the Florence-based winery is believed to be one of the largest thefts of its kind in Italy.",
+    "source": "BBC World",
+    "category": "עולם"
+  },
+  {
+    "title": "Three Saudi nationals killed in Houthi attacks on Riyadh airport",
+    "link": "https://www.bbc.co.uk/news/articles/cmz7xe37g5wro?at_medium=RSS&at_campaign=rss",
+    "summary": "The missile attacks come amid an escalation in fighting between the Iran-backed group and Saudi Arabia, which backs Yemen's government.",
+    "source": "BBC World",
+    "category": "עולם"
+  },
+  {
+    "title": "Two Renoir paintings stolen from French museum are recovered",
+    "link": "https://www.bbc.co.uk/news/articles/cwkg50v1vn07o?at_medium=RSS&at_campaign=rss",
+    "summary": "The two works were seized last month when thieves cut through a fence and smashed a window at the Renoir Museum on the French Riviera.",
+    "source": "BBC World",
+    "category": "עולם"
+  },
+  {
+    "title": "Nord Stream trial: How German police followed the evidence - to Ukraine",
+    "link": "https://www.bbc.co.uk/news/articles/c317ke5ngrq7o?at_medium=RSS&at_campaign=rss",
+    "summary": "After four years, a Ukrainian man is set to stand trial in Hamburg accused of sabotaging the Nord Stream pipelines.",
+    "source": "BBC World",
+    "category": "עולם"
+  },
+  {
+    "title": "Public executions in the US stopped nearly a century ago - why are they resuming now?",
+    "link": "https://www.bbc.co.uk/news/articles/c6kgq7rqdql7o?at_medium=RSS&at_campaign=rss",
+    "summary": "The Pentagon says the execution of Fort Hood shooter Nidal Hasan will be livestreamed, but experts suggest officials are reading the country wrong.",
+    "source": "BBC World",
+    "category": "עולם"
+  },
+  {
+    "title": "'Everyone hates the police' – what France's school protests reveal about a divided nation",
+    "link": "https://www.bbc.co.uk/news/articles/crq5nlqnn184o?at_medium=RSS&at_campaign=rss",
+    "summary": "Students taking to the streets have become a focal point in the country's increasingly polarised politics.",
+    "source": "BBC World",
+    "category": "עולם"
+  },
+  {
+    "title": "Questions remain over Ebola patient who travelled across three nations undetected",
+    "link": "https://www.bbc.co.uk/news/articles/cqp8gknl1njjo?at_medium=RSS&at_campaign=rss",
+    "summary": "Fresh details reveal how the 40-year-old businessman flew and crossed regional borders while seriously ill.",
+    "source": "BBC World",
+    "category": "עולם"
+  },
+  {
+    "title": "Fort Hood survivor supports gunman's execution by firing squad but questions livestream",
+    "link": "https://www.bbc.co.uk/news/articles/ck1wvqw4lzdvo?at_medium=RSS&at_campaign=rss",
+    "summary": "Alonzo Lunsford tells the BBC the punishment befits the crime but he has some doubts whether the public should be able to watch it.",
+    "source": "BBC World",
+    "category": "עולם"
+  },
+  {
+    "title": "Meet India's feisty Gen Z protester who is taking on Modi",
+    "link": "https://www.bbc.co.uk/news/articles/c5n49xln3lz0o?at_medium=RSS&at_campaign=rss",
+    "summary": "Neha Bora has emerged as one of the most recognisable faces from India's recent Gen Z-led protests.",
+    "source": "BBC World",
+    "category": "עולם"
+  },
+  {
+    "title": "BBC breaks down video of the aftermath of New York City ICE shooting",
+    "link": "https://www.bbc.co.uk/news/videos/cm36905w7zl4o?at_medium=RSS&at_campaign=rss",
+    "summary": "The BBC's Nada Tawfik goes through new dramatic body cam footage that shows the tense moments when police arrive on scene.",
+    "source": "BBC World",
+    "category": "עולם"
+  },
+  {
+    "title": "How the trial of murdered Australian brothers and US friend unfolded",
+    "link": "https://www.bbc.co.uk/news/videos/cr86z34vz95yo?at_medium=RSS&at_campaign=rss",
+    "summary": "The mother of two Australian surfers murdered in Mexico two years ago with their American friend said \"accountability matters\".",
+    "source": "BBC World",
+    "category": "עולם"
+  },
+  {
+    "title": "Thai Queen makes first solo flight in fighter jet",
+    "link": "https://www.bbc.co.uk/news/videos/cqm263x40y37o?at_medium=RSS&at_campaign=rss",
+    "summary": "Thailand’s Queen Suthida made her first solo flight in a fighter jet, according to the Thai Royal Household.",
+    "source": "BBC World",
+    "category": "עולם"
+  },
+  {
+    "title": "Watch: Who is Nobel Peace Prize winner Navi Pillay?",
+    "link": "https://www.bbc.co.uk/news/videos/cq8ezdww6w0do?at_medium=RSS&at_campaign=rss",
+    "summary": "BBC correspondent Joe Inwood explains how Pillay's childhood in South Africa led her to become a driving force in international law from Myanmar to Gaza.",
+    "source": "BBC World",
+    "category": "עולם"
+  },
+  {
+    "title": "Tornado rips through Sicilian town and city",
+    "link": "https://www.bbc.co.uk/news/videos/cm4g1wwl0lxko?at_medium=RSS&at_campaign=rss",
+    "summary": "Dramatic footage shows huge tornado moving through Marsala and Petrosino, causing damage to buildings and cars.",
+    "source": "BBC World",
+    "category": "עולם"
+  },
+  {
+    "title": "Why is it so hard to put out Indonesian fires shrouding the region in toxic smog?",
+    "link": "https://www.bbc.co.uk/news/videos/c862y63x657no?at_medium=RSS&at_campaign=rss",
+    "summary": "We explain why Indonesia’s peatland fires are so difficult to battle and produce so much haze.",
+    "source": "BBC World",
+    "category": "עולם"
+  },
+  {
+    "title": "How drones are hunting fires hidden beneath the Cairngorms",
+    "link": "https://www.bbc.co.uk/news/articles/cwm24n9v8rdeo?at_medium=RSS&at_campaign=rss",
+    "summary": "Dramatic flames from the huge Cairngorms wildfire in July have disappeared - but hot spots can continue to burn beneath the earth.",
+    "source": "BBC Technology",
+    "category": "עולם"
+  },
+  {
+    "title": "Prize-winning image which sparked backlash was AI-generated, Nikon rules",
+    "link": "https://www.bbc.co.uk/news/articles/cr86z33pdy9vo?at_medium=RSS&at_campaign=rss",
+    "summary": "The camera-maker says it is now re-evaluating the rules and procedures of its Small World in Motion contest.",
+    "source": "BBC Technology",
+    "category": "עולם"
+  },
+  {
+    "title": "Anthropic bans users from being 'cruel' to its AI systems",
+    "link": "https://www.bbc.co.uk/news/articles/c6j9k1l72wkgo?at_medium=RSS&at_campaign=rss",
+    "summary": "The firm said users can no longer engage in \"sustained and needless\" abusive behaviour towards the tech.",
+    "source": "BBC Technology",
+    "category": "עולם"
+  },
+  {
+    "title": "Fired OpenAI researchers say they were let go for 'prioritising safety'",
+    "link": "https://www.bbc.co.uk/news/articles/cvlydn8d3lkjo?at_medium=RSS&at_campaign=rss",
+    "summary": "The AI firm instead claims the researchers were fired for mishandling sensitive information.",
+    "source": "BBC Technology",
+    "category": "עולם"
+  },
+  {
+    "title": "Nvidia-backed data centre firm scraps IPO as AI valuation concerns deepen",
+    "link": "https://www.bbc.co.uk/news/articles/ck9dzpw4ll8po?at_medium=RSS&at_campaign=rss",
+    "summary": "Firmus said it had made the decision due to \"recent market volatility and prevailing market conditions\".",
+    "source": "BBC Technology",
+    "category": "עולם"
+  },
+  {
+    "title": "'Careless use of AI is the real threat - not the ghost stories'",
+    "link": "https://www.bbc.co.uk/news/articles/cjzxz9yp1kq9o?at_medium=RSS&at_campaign=rss",
+    "summary": "Meredith Whittaker says the tech has been misunderstood, in an exclusive interview with BBC Global Women.",
+    "source": "BBC Technology",
+    "category": "עולם"
+  },
+  {
+    "title": "Why are more roofs not made of solar tiles?",
+    "link": "https://www.bbc.co.uk/news/articles/cdr7n610rmzo?at_medium=RSS&at_campaign=rss",
+    "summary": "Solar tiles were touted as an attractive alternative to solar panels - why have they not taken off?",
+    "source": "BBC Technology",
+    "category": "עולם"
+  },
+  {
+    "title": "White House blocks Microsoft from foreign worker hiring programme",
+    "link": "https://www.bbc.co.uk/news/articles/ck5yngl2y4gpo?at_medium=RSS&at_campaign=rss",
+    "summary": "An international visa programme has for years allowed US tech companies to hire highly skilled workers from abroad.",
+    "source": "BBC Technology",
+    "category": "עולם"
+  },
+  {
+    "title": "Asos hackers took more personal details than first revealed, BBC finds",
+    "link": "https://www.bbc.co.uk/news/articles/c3zxjdw5ywgpo?at_medium=RSS&at_campaign=rss",
+    "summary": "Retailer issues update after BBC contacted by cyber criminals who said this week's breach went beyond \"basic contact details\"",
+    "source": "BBC Technology",
+    "category": "עולם"
+  },
+  {
+    "title": "AI chip boom pushes Samsung profits to record $80bn",
+    "link": "https://www.bbc.co.uk/news/articles/c687z8127302o?at_medium=RSS&at_campaign=rss",
+    "summary": "The tech giant is also expected to get a boost from its latest folding devices that were launched in August.",
+    "source": "BBC Technology",
+    "category": "עולם"
+  },
+  {
+    "title": "Fuel prices added to Google Maps as petrol and diesel costs soar",
+    "link": "https://www.bbc.co.uk/news/articles/ckx2d4ddjn2eo?at_medium=RSS&at_campaign=rss",
+    "summary": "A search for forecourts will now display their pricing, using the government's Fuel Finder scheme.",
+    "source": "BBC Technology",
+    "category": "עולם"
+  },
+  {
+    "title": "OpenAI says teen ChatGPT use limited but research finds it an 'unacceptable risk'",
+    "link": "https://www.bbc.co.uk/news/articles/cwz0vrmxkvy4o?at_medium=RSS&at_campaign=rss",
+    "summary": "The research found that important guardrails for teens using ChatGPT often failed.",
+    "source": "BBC Technology",
+    "category": "עולם"
+  },
+  {
+    "title": "Tech Life",
+    "link": "https://www.bbc.co.uk/sounds/play/w3ct8jyj?at_medium=RSS&at_campaign=rss",
+    "summary": "What is a supercomputer for? How does it work? And who gets to use it? We explain all",
+    "source": "BBC Technology",
+    "category": "עולם"
+  },
+  {
+    "title": "Tech Life",
+    "link": "https://www.bbc.co.uk/sounds/play/w3ct8jyh?at_medium=RSS&at_campaign=rss",
+    "summary": "How a Chinese AI model was persuaded to ignore its rules and give dangerous advice.",
+    "source": "BBC Technology",
+    "category": "עולם"
+  },
+  {
+    "title": "Tech Life",
+    "link": "https://www.bbc.co.uk/sounds/play/w3ct8jyg?at_medium=RSS&at_campaign=rss",
+    "summary": "China is competing with the United States and other nations to develop AI.",
+    "source": "BBC Technology",
+    "category": "עולם"
+  },
+  {
+    "title": "Tech Life",
+    "link": "https://www.bbc.co.uk/sounds/play/w3ct8jyf?at_medium=RSS&at_campaign=rss",
+    "summary": "What should children learn in a world transformed by artificial intelligence?",
+    "source": "BBC Technology",
+    "category": "עולם"
+  },
+  {
+    "title": "Tech Now",
+    "link": "https://www.bbc.co.uk/iplayer/episode/m0032yng?at_medium=RSS&at_campaign=rss",
+    "summary": "Shiona McCallum visits Cairngorms National Park to see tech monitor wildfire damage.",
+    "source": "BBC Technology",
+    "category": "עולם"
+  },
+  {
+    "title": "Tech Now",
+    "link": "https://www.bbc.co.uk/iplayer/episode/m0032n6v?at_medium=RSS&at_campaign=rss",
+    "summary": "Alasdair Keane heads to the Pokémon World Championships in San Francisco.",
+    "source": "BBC Technology",
+    "category": "עולם"
+  },
+  {
+    "title": "Tech Now",
+    "link": "https://www.bbc.co.uk/iplayer/episode/m0032d9k?at_medium=RSS&at_campaign=rss",
+    "summary": "Ammie Sekhon explores tech used to identify and remove counterfeit products online.",
+    "source": "BBC Technology",
+    "category": "עולם"
+  },
+  {
+    "title": "Tech Now",
+    "link": "https://www.bbc.co.uk/iplayer/episode/m0032301?at_medium=RSS&at_campaign=rss",
+    "summary": "Adrienne Murray follows NASA scientists in Iceland researching a rare total solar eclipse.",
+    "source": "BBC Technology",
+    "category": "עולם"
+  },
+  {
+    "title": "John Prine on music, cancer and why he never thought he'd be a recording artist",
+    "link": "https://www.npr.org/2026/10/09/nx-s1-5996535/john-prine-on-music-cancer-and-why-he-never-thought-hed-be-a-recording-artist",
+    "summary": "Prine died in 2020 from complications of COVID-19. To mark what would have been his 80th birthday, we listen to an interview from 2018 in which he talked about the surgeries that altered his voice.",
+    "source": "NPR Music",
+    "category": "אלבומים וסינגלים"
+  },
+  {
+    "title": "Discursive Verses: Vic Mensa and the rise of a rap manosphere counterculture",
+    "link": "https://www.npr.org/2026/10/08/nx-s1-5995128/the-week-in-hip-hop-vic-mensa-show-grits-and-eggs-pod-manosphere-counterculture",
+    "summary": "NPR Music culture critic and reporter Rodney Carmichael ruminates on the latest in rap culture. This week: an unbothered, radically different, equal but opposite response to rap's podcast bros.",
+    "source": "NPR Music",
+    "category": "אלבומים וסינגלים"
+  },
+  {
+    "title": "Tiny Desk Radio: Luiza Brina, Silvia Pérez Cruz, Mon Laferte",
+    "link": "https://www.npr.org/2026/10/08/g-s1-146957/tiny-desk-radio-luiza-brina-silvia-perez-cruz-mon-laferte",
+    "summary": "We make the case to expand the canon for the New Wave of Latin Jazz. Look for Tiny Desk Radio on your local NPR station.",
+    "source": "NPR Music",
+    "category": "אלבומים וסינגלים"
+  },
+  {
+    "title": "Los Texmaniacs: Tiny Desk Concert",
+    "link": "https://www.npr.org/2026/10/08/g-s1-141839/los-texmaniacs-tiny-desk-concert",
+    "summary": "Los Texmaniacs' accordion-driven music is a living history lesson, which just so happens to be perfect for twirling on the dance floor.",
+    "source": "NPR Music",
+    "category": "אלבומים וסינגלים"
+  },
+  {
+    "title": "BTS frontman RM is showing his art collection. Fans are flocking to see it",
+    "link": "https://www.npr.org/2026/10/07/nx-s1-5986317/bts-rm-sfmoma-korean-art-san-francisco",
+    "summary": "The pop superstar is showing art from his personal collection for the first time. The San Francisco Museum of Modern Art is packed with fans.",
+    "source": "NPR Music",
+    "category": "אלבומים וסינגלים"
+  },
+  {
+    "title": "On 'She's the Best,' Troye Sivan takes the party to unexpected places",
+    "link": "https://www.npr.org/2026/10/07/nx-s1-5887547/troye-sivan-shes-the-best-interview",
+    "summary": "The Australian singer-songwriter's last album earned him his first Grammy nominations, a global tour with Charli xcx and even an SNL parody. His new release, She's the Best , excavates a deeper layer of his desires.",
+    "source": "NPR Music",
+    "category": "אלבומים וסינגלים"
+  },
+  {
+    "title": "Tim Bernardes: Tiny Desk Concert",
+    "link": "https://www.npr.org/2026/10/06/g-s1-141837/tim-bernardes-tiny-desk-concert",
+    "summary": "The Brazilian singer-songwriter sits easily in the poetry of the cosmos and his country, but communicates every emotion with tangible complexity.",
+    "source": "NPR Music",
+    "category": "אלבומים וסינגלים"
+  },
+  {
+    "title": "With a voice as vast as the ocean, Beth Taylor has arrived",
+    "link": "https://www.npr.org/2026/10/05/nx-s1-5936425-e1/with-a-voice-as-vast-as-the-ocean-beth-taylor-has-arrived",
+    "summary": "The up-and-coming Scottish mezzo-soprano's debut recital album is a compelling collection of songs about the sea.",
+    "source": "NPR Music",
+    "category": "אלבומים וסינגלים"
+  },
+  {
+    "title": "DJ_Dave's 'Hardcore Software' is code you can dance to",
+    "link": "https://www.npr.org/2026/10/05/nx-s1-5904548/dj-daves-hardcore-software-is-code-you-can-dance-to",
+    "summary": "DJ_Dave writes and performs dance music with code. Her debut album, Hardcore Software, combines tech optimism with the open source spirit of an algorave.",
+    "source": "NPR Music",
+    "category": "אלבומים וסינגלים"
+  },
+  {
+    "title": "Medium Build's Nick Carpenter on growing up and finding his way back to fun",
+    "link": "https://www.npr.org/2026/10/03/nx-s1-5986021/medium-builds-nick-carpenter-on-growing-up-and-finding-his-way-back-to-fun",
+    "summary": "Nick Carpenter, who makes music as Medium Build, talks about his new album \"King of Having Fun\" and finding moments that make him feel like a kid again.",
+    "source": "NPR Music",
+    "category": "אלבומים וסינגלים"
+  },
+  {
+    "title": "Willie Nelson, Yo La Tengo Endorse James Talarico",
+    "link": "https://pitchfork.com/story/willie-nelson-yo-la-tengo-endorse-james-talarico/",
+    "summary": "YLT will play a benefit concert for the Texas Senate hopeful in Austin on October 27",
+    "source": "Pitchfork",
+    "category": "אלבומים וסינגלים"
+  },
+  {
+    "title": "Remi Wolf Announces 2027 North America Tour",
+    "link": "https://pitchfork.com/story/remi-wolf-announces-north-america-tour/",
+    "summary": "The singer will hit New York, Los Angeles, Chicago, Toronto, and more",
+    "source": "Pitchfork",
+    "category": "אלבומים וסינגלים"
+  },
+  {
+    "title": "The Decemberists Premiere First Song in Two Years",
+    "link": "https://pitchfork.com/story/the-decemberists-new-song-the-better-part-of-bravery/",
+    "summary": "“The Better Part of Bravery” was made for Wildwood, a film based on Colin Meloy’s debut novel",
+    "source": "Pitchfork",
+    "category": "אלבומים וסינגלים"
+  },
+  {
+    "title": "Alanis Morissette Made a Holiday Album",
+    "link": "https://pitchfork.com/story/alanis-morissette-made-a-holiday-album/",
+    "summary": "This Christmas season, expect Good Weather for Immaculate Conception",
+    "source": "Pitchfork",
+    "category": "אלבומים וסינגלים"
+  },
+  {
+    "title": "9 New Albums You Should Listen to Now: Cameron Winter, Deafheaven, Dawn Richard, and More",
+    "link": "https://pitchfork.com/story/9-new-albums-you-should-listen-to-now-cameron-winter-deafheaven-dawn-richard/",
+    "summary": "Stream new releases from Cameron Winter, Deafheaven, Dawn Richard, Troye Sivan, and more",
+    "source": "Pitchfork",
+    "category": "אלבומים וסינגלים"
+  },
+  {
+    "title": "Watch Phoebe Bridgers and Boygenius Perform Live in New Short Film",
+    "link": "https://pitchfork.com/story/watch-phoebe-bridgers-and-boygenius-sound-check-at-cherry-lane-theater/",
+    "summary": "Bridgers is the latest guest on A24’s Sound Check at Cherry Lane Theatre YouTube series",
+    "source": "Pitchfork",
+    "category": "אלבומים וסינגלים"
+  },
+  {
+    "title": "Watch Slayyyter Rock a Raccoon Pelt in “I Think He’s Got a Girl” Video",
+    "link": "https://pitchfork.com/story/slayyyter-i-think-hes-got-a-girl-video/",
+    "summary": "The next single from Wor$t Man in America comes with a video she directed herself",
+    "source": "Pitchfork",
+    "category": "אלבומים וסינגלים"
+  },
+  {
+    "title": "Troye Sivan Shares His “Gayest Music Video” for “FF”",
+    "link": "https://pitchfork.com/story/troye-sivan-shares-his-gayest-music-video-for-ff/",
+    "summary": "“Like this is GAY gay,” the Aussie pop star said of the clip, which accompanies the release of his new album She’s the Best",
+    "source": "Pitchfork",
+    "category": "אלבומים וסינגלים"
+  },
+  {
+    "title": "Deafheaven Surprise Release New EP At Work in the Fields of the Bomb",
+    "link": "https://pitchfork.com/story/deafheaven-surprise-release-new-ep-at-work-in-the-fields-of-the-bomb/",
+    "summary": "The three-tracker comes with a short film for “Hunter”",
+    "source": "Pitchfork",
+    "category": "אלבומים וסינגלים"
+  },
+  {
+    "title": "Grimes Shares First Song From AI-Inspired Album Psy Opera",
+    "link": "https://pitchfork.com/story/grimes-shares-first-song-from-ai-inspired-album-psy-opera/",
+    "summary": "The album promises to cover everything the singer “witnessed as a woman of history during her hiatus from pop music”",
+    "source": "Pitchfork",
+    "category": "אלבומים וסינגלים"
+  },
+  {
+    "title": "Power Trip Return With First Songs Since Death of Riley Gale",
+    "link": "https://pitchfork.com/story/power-trip-return-with-first-songs-since-death-of-riley-gale/",
+    "summary": "“I think he would have been stoked to see it come to fruition,” says guitarist Blake Ibanez of “Precinct 3” and “Scavenger”",
+    "source": "Pitchfork",
+    "category": "אלבומים וסינגלים"
+  },
+  {
+    "title": "Loretta Lynn’s Van Lear Rose Is Returning to Streaming",
+    "link": "https://pitchfork.com/story/loretta-lynns-van-lear-rose-is-returning-to-streaming/",
+    "summary": "Third Man will reissue Lynn’s 2004 comeback album, which was mysteriously pulled from DSPs in 2021",
+    "source": "Pitchfork",
+    "category": "אלבומים וסינגלים"
+  },
+  {
+    "title": "Watch Audrey Hobert Talk to a Redwood Tree in New “Phoebe” Video",
+    "link": "https://pitchfork.com/story/audrey-hobert-phoebe-video/",
+    "summary": "The Friends-inspired Who’s the Clown? track gets its own visual",
+    "source": "Pitchfork",
+    "category": "אלבומים וסינגלים"
+  },
+  {
+    "title": "David Byrne and Daniel Pemberton Made a Song Using Weird Elon Musk Quotes",
+    "link": "https://pitchfork.com/story/david-byrne-and-daniel-pemberton-made-a-song-using-weird-elon-musk-quotes/",
+    "summary": "“Let Me Sell You a Dream” appears in Musk, a new documentary about the tech mogul directed by Alex Gibney",
+    "source": "Pitchfork",
+    "category": "אלבומים וסינגלים"
+  },
+  {
+    "title": "Björk Announces New Orchestral Live Album",
+    "link": "https://pitchfork.com/story/bjork-announces-new-orchestral-live-album/",
+    "summary": "Drawn from her 2021 performances adapting songs, primarily from Medúlla, for an ensemble including a 50-person choir",
+    "source": "Pitchfork",
+    "category": "אלבומים וסינגלים"
+  },
+  {
+    "title": "Turnstile Announce Free Show to Raise Funds for Palestine, Sudan, and Lebanon",
+    "link": "https://pitchfork.com/story/turnstile-announce-free-show-to-raise-funds-for-palestine-sudan-and-lebanon/",
+    "summary": "The Washington D.C. concert takes place on October 24 in collaboration with Human Concern International",
+    "source": "Pitchfork",
+    "category": "אלבומים וסינגלים"
+  },
+  {
+    "title": "Grouper’s Liz Harris Shares 21-Minute Composition",
+    "link": "https://pitchfork.com/story/groupers-liz-harris-shares-21-minute-composition/",
+    "summary": "“Untitled (from Constellation)” is one of two short-film scores compiled on a new Kranky release",
+    "source": "Pitchfork",
+    "category": "אלבומים וסינגלים"
+  },
+  {
+    "title": "GTA VI Radio Stations to Be Hosted by Lana Del Rey, Bad Bunny, Robyn",
+    "link": "https://pitchfork.com/story/gta-vi-radio-station-hosts-bad-bunny-rainao-lana-del-rey-robyn/",
+    "summary": "Also: RaiNao along with Lana Del Rey's husband",
+    "source": "Pitchfork",
+    "category": "אלבומים וסינגלים"
+  },
+  {
+    "title": "Andrew Savage Launches New Band Iconic Fugues With “2025 Dream/2025 Blues”",
+    "link": "https://pitchfork.com/story/andrew-savage-launches-new-band-iconic-fugues-with-2025-dream-2025-blues/",
+    "summary": "“I think it’s just amazing the way a fun guitar solo can draw a bit of sun out from behind the clouds”",
+    "source": "Pitchfork",
+    "category": "אלבומים וסינגלים"
+  },
+  {
+    "title": "The War on Drugs’ Robbie Bennett Sets Two New Solo Albums",
+    "link": "https://pitchfork.com/story/the-war-on-drugs-robbie-bennett-sets-two-new-solo-albums/",
+    "summary": "The keyboardist has shared one song each from Steloken and Circulation",
+    "source": "Pitchfork",
+    "category": "אלבומים וסינגלים"
+  },
+  {
+    "title": "You Can Now Get a Jimmy Eat World Library Card",
+    "link": "https://pitchfork.com/story/jimmy-eat-world-library-card/",
+    "summary": "If you live in Mesa, Arizona, that is",
+    "source": "Pitchfork",
+    "category": "אלבומים וסינגלים"
+  },
+  {
+    "title": "Watch American Football Combine “Never Meant” and the Cure’s “Boys Don’t Cry”",
+    "link": "https://pitchfork.com/story/watch-american-football-combine-never-meant-and-the-cures-boys-dont-cry/",
+    "summary": "The veteran emo band pulled it off as a live cover for SiriusXM",
+    "source": "Pitchfork",
+    "category": "אלבומים וסינגלים"
+  },
+  {
+    "title": "Man Sentenced to Prison for Bot Streams of AI Songs",
+    "link": "https://pitchfork.com/story/man-sentenced-to-prison-for-bot-streams-of-ai-songs/",
+    "summary": "Mike Smith is the first person to face federal charges for music streaming fraud",
+    "source": "Pitchfork",
+    "category": "אלבומים וסינגלים"
+  },
+  {
+    "title": "Undeath Sign to Relapse and Share New Song",
+    "link": "https://pitchfork.com/story/undeath-sign-to-relapse-and-share-new-song/",
+    "summary": "“Arterial Bombardment” is “a track full of non-stop riffing, blasting, death metal sickness,” says frontperson Alex Sason",
+    "source": "Pitchfork",
+    "category": "אלבומים וסינגלים"
+  },
+  {
+    "title": "Paul McCartney Releases Three New Songs",
+    "link": "https://pitchfork.com/story/paul-mccartney-releases-three-new-songs/",
+    "summary": "Listen to “City Fox,” “One Night Stand,” and “Chelsea Boots” from the Boys of Dungeon Lane sessions",
+    "source": "Pitchfork",
+    "category": "אלבומים וסינגלים"
+  },
+  {
+    "title": "Watch Twisted Teens Play in the Trash in Their New Music Video",
+    "link": "https://pitchfork.com/story/watch-twisted-teens-play-in-trash-in-new-stalks-video/",
+    "summary": "The New Orleans punks are gearing up to release their third album of the year next month",
+    "source": "Pitchfork",
+    "category": "אלבומים וסינגלים"
+  },
+  {
+    "title": "Star Moles Signs to Dead Oceans, Readies 2027 Tour",
+    "link": "https://pitchfork.com/story/star-moles-signs-to-dead-oceans-readies-2027-tour/",
+    "summary": "Emily Moales will play U.S. headlining shows behind Highway to Hell in January",
+    "source": "Pitchfork",
+    "category": "אלבומים וסינגלים"
+  },
+  {
+    "title": "13 Record Store Day Releases Actually Worth Getting on Black Friday",
+    "link": "https://pitchfork.com/story/15-record-store-day-releases-actually-worth-getting-on-black-friday/",
+    "summary": "The annual event has been a bloated mess for years but there are still some gems to be found this November",
+    "source": "Pitchfork",
+    "category": "אלבומים וסינגלים"
+  },
+  {
+    "title": "Anna Meredith Announces New Album Darling",
+    "link": "https://pitchfork.com/story/anna-meredith-announces-new-album-darling/",
+    "summary": "Listen to the first single, “Dusky,” now",
+    "source": "Pitchfork",
+    "category": "אלבומים וסינגלים"
+  },
+  {
+    "title": "The Comet Is Coming Unearth Archival Songs for Channel the Spirits Reissue",
+    "link": "https://pitchfork.com/story/the-comet-is-coming-unearth-archival-songs-for-channel-the-spirits-reissue/",
+    "summary": "Listen to “Late Night Party Jam 2,” recorded during Shabaka and the band’s influential Total Refreshment Centre residency",
+    "source": "Pitchfork",
+    "category": "אלבומים וסינגלים"
+  },
+  {
+    "title": "‘People forgot I existed’: Audrey Niffenegger on taking 14 years to write a sequel to The Time Traveler’s Wife",
+    "link": "https://www.theguardian.com/books/2026/oct/10/people-forgot-i-existed-audrey-niffenegger-on-taking-14-years-to-write-a-sequel-to-the-time-travelers-wife",
+    "summary": "Her debut made her a global star. Now she has finally written a follow-up – and this time, it’s political. She talks about impostor syndrome, screen adaptations and becoming radicalised The artist and novelist Audrey Niffenegger began writing the long-awaited sequel to her bestselling debut, The Time Traveler’s Wife, in 2012, just after Obama’s re-election. It was a “rosy” time in American politics, “as good as it gets over here”, she says now, but her new novel required her to imagine what the world might look like in 20, 40, 60 years’ time. I",
+    "source": "The Guardian Culture",
+    "category": "אמנות"
+  },
+  {
+    "title": "Time: David Tennant and Siobhan Finneran are stellar in this horrifying and exceptional TV drama",
+    "link": "https://www.theguardian.com/tv-and-radio/2026/oct/10/time-david-tennant-and-siobhan-finneran-are-stellar-in-this-horrifying-and-exceptional-tv-drama",
+    "summary": "Jimmy McGovern’s grab-you-by-the-throat prison show is back and it could hardly be more urgent, prescient or excellent. Brace yourself though … Bake Off it is not It takes a lot to drag me away from comfort TV in the autumn. Blame the shrinking hours of light or the apocalyptic news cycle but the closest thing I like to get to televisual trauma in October is watching comedians get into their own graves in The Celebrity Traitors. I doubt I’m alone. I don’t want to psychoanalyse the British public but I’d take a punt that collectively we are just",
+    "source": "The Guardian Culture",
+    "category": "אמנות"
+  },
+  {
+    "title": "‘I just wasn’t going to give up’: the fight to free the longest-serving political prisoner in the US",
+    "link": "https://www.theguardian.com/film/2026/oct/10/free-leonard-peltier-netflix-documentary",
+    "summary": "Leonard Peltier was imprisoned for 49 years before his sentence was commuted. A new Netflix documentary exposes the ‘corrupt’ system that allowed it to happen On 20 January 2025, with 14 minutes remaining in his term as president, Joe Biden commuted the life sentence of Leonard Peltier , after years of pressure to release a figure seen by many as the longest-serving political prisoner in the US. The Indigenous activist, a leader within the American Indian Movement (Aim) and an icon of Native American resistance, served nearly 50 years in prison",
+    "source": "The Guardian Culture",
+    "category": "אמנות"
+  },
+  {
+    "title": "Remember Me review – narrow view of two photographic centuries is like a history of food in three ham sarnies",
+    "link": "https://www.theguardian.com/artanddesign/2026/oct/10/remember-me-review-photography-bourse-de-commerce-paris",
+    "summary": "Bourse de Commerce, Paris There are 700 works from François Pinault’s collection on display – more than half of them by Irving Penn – but it’s a blinkered selection and annoyingly didactic ‘Beware … of assuming the sterile attitude of the spectator, for life is not a spectacle” scream the words of Aimé Césaire – writ large and bold by Barbara Kruger, in a giant installation, The History of Tears, that fills Bourse de Commerce’s spectacular Rotunda. Kruger’s angry, menacing, viscerally charged work – words as images, and large-scale video clips ",
+    "source": "The Guardian Culture",
+    "category": "אמנות"
+  },
+  {
+    "title": "TV tonight: Richard Ayoade and Hannah Waddingham’s cartoon comedy",
+    "link": "https://www.theguardian.com/tv-and-radio/2026/oct/10/tv-tonight-richard-ayoade-and-hannah-waddinghams-cartoon-comedy",
+    "summary": "Rick and Morty fans will love ancient Greece animation Krapopolis. Plus, Danny Dyer takes the SNL UK hosting reins. Here’s what to watch this evening 11.40pm, BBC Three Continue reading...",
+    "source": "The Guardian Culture",
+    "category": "אמנות"
+  },
+  {
+    "title": "The Guide #264: Why is Hollywood obsessed with the tech-bro baddie?",
+    "link": "https://www.theguardian.com/culture/2026/oct/09/why-is-hollywood-obsessed-with-the-tech-bro-baddie",
+    "summary": "In this week’s newsletter: Dead-eyed billionaires can’t hold a candle to the maniacal cinematic villains of old – it’s time Hollywood rewrote its source code • Don’t get The Guide delivered to your inbox? Sign up here Sixteen years ago The Social Network was released and the first stirrings of a new cinema archetype were seen: the tech-bro villain. Perhaps that’s too damning a description for the Mark Zuckerberg portrayed by Jesse Eisenberg in David Fincher’s 21st-century classic about the dawn of Facebook; he’s certainly not a villain in the m",
+    "source": "The Guardian Culture",
+    "category": "אמנות"
+  },
+  {
+    "title": "14th review – Ava DuVernay’s galvanizing documentary is a remarkable achievement",
+    "link": "https://www.theguardian.com/film/2026/oct/09/ava-duvernay-14th-review",
+    "summary": "New York film festival: the director has made a fascinating and troubling companion piece to her Netflix documentary 13th, which takes a fiery look at American injustice It feels at once like the blink of an eye and an eternity since Ava DuVernay’s documentary 13th arrived on Netflix, a month before the election of Donald Trump to his first term as president. The intervening decade has more or less borne out the film’s thesis on the enduring specter of white supremacy in American life: that a clause within the 13th amendment abolishing chattel ",
+    "source": "The Guardian Culture",
+    "category": "אמנות"
+  },
+  {
+    "title": "‘Old-timey fascism was kept secret. Now you don’t have to hide it’: Martin McDonagh, John Malkovich and Sam Rockwell on Wild Horse Nine",
+    "link": "https://www.theguardian.com/film/2026/oct/09/martin-mcdonagh-john-malkovich-sam-rockwell-interview-wild-horse-nine",
+    "summary": "McDonagh’s latest film has Malkovich and Rockwell shooting the breeze as CIA agents in 1973 on Easter Island. They discuss grandchildren, swimming with turtles and who shot JFK ‘Earmuffs!” says Sam Rockwell, pausing his gushing tribute mid-flow and turning to face John Malkovich on the couch. Rockwell loves Malkovich and has been discussing his work at some length. Malkovich, he says, is charismatic and dangerous, half masculine, half feminine; a unique combination and the perfect sparring partner. He’s one of the world’s finest actors and anno",
+    "source": "The Guardian Culture",
+    "category": "אמנות"
+  },
+  {
+    "title": "Gromit finally gets a voice … and it’s Martin Freeman",
+    "link": "https://www.theguardian.com/film/2026/oct/09/gromit-autobiography-martin-freeman-voice",
+    "summary": "After 37 years, the staunchly silent dog will speak for the first time in the audiobook of his autobiography – and it turns out he sounds like a hobbit He has been on screen for 37 years, but he has never uttered a word. Now, Gromit will speak for the first time – with the voice of the Hobbit star Martin Freeman. The claymation dog, who has partnered with his eccentric inventor-owner Wallace in a series of Oscar-winning films including The Wrong Trousers, A Close Shave and Wallace & Gromit: The Curse of the Were-Rabbit, is releasing an autobiog",
+    "source": "The Guardian Culture",
+    "category": "אמנות"
+  },
+  {
+    "title": "Lost generation: the AI threat to Britain’s next great directors",
+    "link": "https://www.theguardian.com/film/2026/oct/09/ai-threat-britain-directors-ridley-scott-guy-ritchie",
+    "summary": "Commercials once launched careers from Ridley Scott to Guy Ritchie, now automated production is cutting costs – and the chance to learn by doing When Ridley Scott was awarded the UK’s highest accolade for a glittering career directing films from Alien and Blade Runner to Gladiator and The Martian , he reminded those attending the Bafta event eight years ago that making commercials had been his “film school” . The advertising industry has long been a breeding ground for British film and TV talent who have gone on to make the jump to Hollywood pr",
+    "source": "The Guardian Culture",
+    "category": "אמנות"
+  },
+  {
+    "title": "Lightsaber Darth Vader used in ‘I am your father’ Star Wars duel up for auction",
+    "link": "https://www.theguardian.com/film/2026/oct/09/lightsaber-darth-vader-star-wars-auction",
+    "summary": "Saber is expected to fetch at least $1m and is one of more than two dozen props that will be up for sale A lightsaber used by Darth Vader in the Star Wars duel where he tells Luke Skywalker “I am your father” is going up for sale at Heritage Auctions next month. The Vader saber, also used in Return of the Jedi, is expected to fetch at least $1m. It is one of more than two dozen lightsaber props that will be up for sale at the auction that spans Star Wars Episodes I through IX and other films and TV shows from the universe George Lucas created. ",
+    "source": "The Guardian Culture",
+    "category": "אמנות"
+  },
+  {
+    "title": "Anne Carson wins Nobel prize in literature 2026",
+    "link": "https://www.theguardian.com/books/2026/oct/08/wins-the-nobel-prize-in-literature-2026",
+    "summary": "Most prestigious literature prize goes to Canadian known for genre-crossing works such as Autobiography of Red ‘Delights await!’: Margaret Atwood and other writers on Nobel winner Anne Carson Where to start with: Anne Carson The Nobel prize in literature has been awarded to the Canadian poet and essayist Anne Carson, the Swedish Academy has announced. The academy cited the author’s “bold and inventive oeuvre that, in playful dialogue with the classical tradition, has created new forms for contemporary literature”. Continue reading...",
+    "source": "The Guardian Culture",
+    "category": "אמנות"
+  },
+  {
+    "title": "Dafydd Owain’s second album wins the 2026 Welsh music prize",
+    "link": "https://www.theguardian.com/music/2026/oct/08/dafydd-owain-second-album-wins-welsh-music-prize-2026",
+    "summary": "Ymarfer Byw, which was praised for its ‘musical excellence’, beat 14 other albums to the prize of £10,000 Singer-songwriter Dafydd Owain has won the 2026 Welsh music prize with his second album Ymarfer Byw. The emotionally charged record, which also won Welsh language album of the year in August, beat albums by the likes of Gruff Rhys, the Royston Club and Art School Girlfriend to the prize of £10,000. ADJUA – Everything Is Beautiful Aleighcia Scott – Taith Ani Glass – Phantasmagoria Art School Girlfriend – Lean In Cerys Hafana – Angel Chroma –",
+    "source": "The Guardian Culture",
+    "category": "אמנות"
+  },
+  {
+    "title": "Please, sir, can I have a walk? Dickens biographer finds likely inspiration for Oliver Twist",
+    "link": "https://www.theguardian.com/books/2026/oct/09/dickens-book-oliver-twist-inspiration",
+    "summary": "Exclusive: Theresa Musgrove unearths newspaper archives showing one Alice Shepherd was severely punished in 1836 for similarly innocent request Could a consumptive young woman called Alice Shepherd have been the inspiration for Oliver Twist? That is a question now being posed by a historian, who has discovered parallels between the brutality suffered by a real-life pauper incarcerated in one of Victorian London’s notorious workhouses and Charles Dickens’s fictional orphan. In researching a new book on Dickens, Theresa Musgrove unearthed 1836 ne",
+    "source": "The Guardian Culture",
+    "category": "אמנות"
+  },
+  {
+    "title": "The week around the world in 20 pictures",
+    "link": "https://www.theguardian.com/artanddesign/gallery/2026/oct/09/the-week-around-the-world-in-20-pictures",
+    "summary": "Student protests across France, Russian strikes on Kyiv, wildfires in Indonesia and Comic-Con in New York – the past seven days as captured by the world’s leading photojournalists Continue reading...",
+    "source": "The Guardian Culture",
+    "category": "אמנות"
+  },
+  {
+    "title": "Six buds in a freaky coat: Split Enz share stories behind their colourful costumes – in pictures",
+    "link": "https://www.theguardian.com/music/gallery/2026/oct/09/split-enz-costumes-makeup-book-in-pictures",
+    "summary": "Emerging in early-1970s New Zealand, the band turned pop into surreal theatre. Percussionist Noel Crombie was the band’s visual architect, shaping their looks via outlandish costumes, makeup, hair design, album covers and music videos. In a new book written with music journalist Michael Dwyer, Crombie and the band look back on their chameleonic eras Split Enz tease new album ahead of first tour in 17 years: ‘We’d make a really good record now’ Continue reading...",
+    "source": "The Guardian Culture",
+    "category": "אמנות"
+  },
+  {
+    "title": "‘I’m lovingly making fun of everyone I’ve ever met’: on the set of Leo Reich’s gen Z sitcom",
+    "link": "https://www.theguardian.com/tv-and-radio/2026/oct/09/leo-reich-comedy-interview-it-gets-worse-channel-4",
+    "summary": "The comedy wunderkind shot to fame with his show Literally, Who Cares?! and a role in Lena Dunham’s Too Much. Now he’s bringing his take on self-involved zoomers to the TV screen. Just don’t call him the voice of a generation Leo Reich’s new Channel 4 sitcom is “Girls meets Peep Show. That’s always my favourite part of pitching anything: choose two really good things and say it’s a mix of those!” says the comedian with a slight smirk. Still, it’s a fair summary: It Gets Worse is a bracingly candid, occasionally provocative hangout comedy about ",
+    "source": "The Guardian Culture",
+    "category": "אמנות"
+  },
+  {
+    "title": "‘I’ve hit my midlife sexpot era!’ Romola Garai on marital misery, cheating … and sex scenes in cars",
+    "link": "https://www.theguardian.com/tv-and-radio/2026/oct/09/ive-hit-my-midlife-sexpot-era-romola-garai-on-marital-misery-cheating-and-sex-scenes-in-cars",
+    "summary": "Layby hookups are all in a day’s work for Romola Garai in her steamy new drama Adultery. She talks faking orgasms, keeping secrets – and making audiences pass out In a raging storm in the Peak District last winter, a blue Toyota Yaris was parked in a remote roadside spot with a sex scene being filmed inside it. “It can pose challenges, depending on the size of the car,” chuckles Romola Garai. “Me and Dominic [Cooper] got in this hatchback and asked: ‘How far do these seats go back?’ Soon there was a gale blowing outside. We were in the car, rea",
+    "source": "The Guardian Culture",
+    "category": "אמנות"
+  },
+  {
+    "title": "‘Me and the lads would not survive a day in here’: inside TV’s utterly stunning, Bafta-winning prison drama",
+    "link": "https://www.theguardian.com/tv-and-radio/2026/oct/09/time-series-three-jimmy-mcgovern-young-offender-institutions-bbc-one",
+    "summary": "The third series of Jimmy McGovern’s breathtaking series Time stars David Tennant – and might just be its best ever. We go behind the scenes “I don’t think you would find a young offender institution (YOI) in which stories like these haven’t happened. Seventeen years of age, loads of energy, hormones, bravado – you know they’ll kick off. It must be an absolute nightmare.” Yes, Jimmy McGovern has gone back to prison again. After two series of Time, which told stories from men’s and women’s institutions , he has turned his attention to perhaps th",
+    "source": "The Guardian Culture",
+    "category": "אמנות"
+  },
+  {
+    "title": "Carrie review – the teenage hell-raiser’s glorious return couldn’t come at a better time",
+    "link": "https://www.theguardian.com/tv-and-radio/2026/oct/07/carrie-review-summer-h-howel-prime-video-horror",
+    "summary": "This witty, smart remake takes bullying and telekinetic violence to new extremes. Even the shower scene is more excruciating than the original The automatic response to the news that a stone-cold classic of any genre is to be remade is: “Why?” In an accompanying letter to critics, the creator of the new TV series Carrie, Mike Flanagan, promises us that this was the first question he asked himself too when he was approached about the project. Why mess with perfection – in this case, the Brian De Palma horror film, based on and nearly eclipsing i",
+    "source": "The Guardian Culture",
+    "category": "אמנות"
+  },
+  {
+    "title": "‘We got that bad guy and took him down!’ Jaclyn Smith on the fun, friendship and frustration of Charlie’s Angels",
+    "link": "https://www.theguardian.com/tv-and-radio/2026/oct/06/jaclyn-smith-charlies-angels-interview",
+    "summary": "It’s 50 years since Smith joined TV’s bikini-clad crime fighters alongside Farrah Fawcett and Kate Jackson. She talks about the love she found on set, the harassment she endured off it and the drug-taking she did her best to ignore For a TV show that only ran for five years, Charlie’s Angels packs a punch like a bikini-wearing big-hair-flicking private investigator. “We never thought we’d be talking about it 50 years later,” says Jaclyn Smith, the only original Angel to make it to the end of the show’s run. Smith, 80, has now written a memoir, ",
+    "source": "The Guardian Culture",
+    "category": "אמנות"
+  },
+  {
+    "title": "Bel review – a tearful, heartbreaking tribute to a spellbinding singer",
+    "link": "https://www.theguardian.com/tv-and-radio/2026/oct/06/bel-review-a-tearful-heartbreaking-tribute-to-a-spellbinding-singer",
+    "summary": "Beldina Odenyo was on the verge of stardom when she took her own life in 2021. In this beautiful documentary, her grief-stricken sister Leah attempts to finish her album – and her journey will make you cry again and again In 2021, the Kenyan-Scottish singer-songwriter Beldina Odenyo was on the brink of major stardom. That October, aged 31, she headlined a gig at Edinburgh’s Usher Hall, delivering an instantly legendary performance; barefoot, cloaked and bone-shaking in its intensity. Everyone in that concert hall knew they were witnessing somet",
+    "source": "The Guardian Culture",
+    "category": "אמנות"
+  },
+  {
+    "title": "Winning the Nobel prize in literature only underlines Anne Carson’s infinite genius | Yiyun Li",
+    "link": "https://www.theguardian.com/books/2026/oct/09/winning-the-nobel-prize-in-literature-anne-carson-yiyun-li",
+    "summary": "When her sons died the Book of Goose author turned to Grief Lessons, Carson’s translation of four plays by Euripides. She reflects on the ‘life sustaining’ work of an extraordinary writer • Where to start with: Anne Carson • ‘Delights await!’: Margaret Atwood and other writers on Anne Carson It is preposterous to agree to write a short piece on Anne Carson’s work. The task is impossible, akin to that of solving the mathematical problem of dividing zero by zero. If one had the power to solve it, perhaps one would have some confidence in attempti",
+    "source": "The Guardian Culture",
+    "category": "אמנות"
+  },
+  {
+    "title": "Mao’s Last Dancer Li Cunxin on his long-awaited follow-up: ‘I don’t think my publisher expected it to take 14 years!’",
+    "link": "https://www.theguardian.com/books/2026/oct/10/chinese-ballet-maos-last-dancer-li-cunxin-memoir-follow-up-14-years",
+    "summary": "As The Lucky Son picks up where Cunxin’s 2003 memoir left off, the renowned Chinese Australian ballet dancer reflects on sacrifices made by his wife, his years at a stockbroker, and his success leading the Queensland Ballet Get our weekend culture and lifestyle email Some people live such extraordinary lives that a single autobiography simply won’t suffice. Li Cunxin has now written two. The renowned ballet dancer and former artistic director of Queensland Ballet had hoped he was finished writing his story after the phenomenal international suc",
+    "source": "The Guardian Culture",
+    "category": "אמנות"
+  },
+  {
+    "title": "The best recent science fiction, fantasy and horror – review roundup",
+    "link": "https://www.theguardian.com/books/2026/oct/09/the-best-recent-science-fiction-fantasy-and-horror-review-roundup",
+    "summary": "The Ballad of Black Tom by Victor LaValle; As You Wake, Break the Shell by Becky Chambers; The Eye of Goliath by Diego Muzzio; Our Cut of Salt by Deena Helm The Ballad of Black Tom by Victor LaValle ( Penguin , £9.99 ) This short novel won almost every genre award following its 2016 US publication. As a Black writer, LaValle had a conflicted relationship with the works of HP Lovecraft. As a child, he loved the tales of cosmic horror, but grew to recognise the racism and other prejudices of the author. Unable to “throw the man’s stories away” be",
+    "source": "The Guardian Culture",
+    "category": "אמנות"
+  },
+  {
+    "title": "AK Blakemore: ‘The Goldfinch by Donna Tartt was extremely silly and bad’",
+    "link": "https://www.theguardian.com/books/2026/oct/09/ak-blakemore-the-goldfinch-by-donna-tartt-was-extremely-silly-and-bad",
+    "summary": "The poet and author on F Scott Fitzgerald’s perfect novel, losing faith in Ernest Hemingway – and the recent debut that blew her away My earliest reading memory Lynley Dodd’s Hairy Maclary from Donaldson’s Dairy – where an assortment of differently shaped dogs go on a walk – wormed its way into my subconscious when I was very young. The great dane (Hercules Morse, as big as a horse), the dalmatian (Bottomley Potts, covered in spots), the dachshund (Schnitzel Von Krumm with a very low tum) … I could probably still recite most of it from memory. ",
+    "source": "The Guardian Culture",
+    "category": "אמנות"
+  },
+  {
+    "title": "The Queerest of Folk by Russell T Davies review – the groundbreaking screenwriter tells it like it is",
+    "link": "https://www.theguardian.com/books/2026/oct/09/the-queerest-of-folk-by-russell-t-davies-review-the-groundbreaking-screenwriter-tells-it-like-it-is",
+    "summary": "From Coronation Street to It’s a Sin, Davies’ memoir of a career in TV is also a rallying cry for creativity Television is an intimate art form, once beamed into living rooms, now on devices right in front of our faces. The screenwriter Russell T Davies understands that intimacy. Whether discussing his early days developing lost-to-history soap spin-offs, making a splash with the pioneering gay series Queer As Folk , or reviving Doctor Who to great acclaim, he makes it feel as if you’re at the pub with him, settling in for the night, ready to h",
+    "source": "The Guardian Culture",
+    "category": "אמנות"
+  },
+  {
+    "title": "Agate Head / Stone Soup by Patricia Lockwood review – a gem of a collection",
+    "link": "https://www.theguardian.com/books/2026/oct/08/agate-head-stone-soup-by-patricia-lockwood-review-a-gem-of-a-collection",
+    "summary": "Inspired by stones and metals, the memoirist and novelist’s first poetry collection for more than a decade is charming, whimsical and intimate In the introduction to her first book of poetry in 12 years, Patricia Lockwood states that, “For almost a decade … I had not been able to hear it. The poems that I wrote would not end … too much was happening, there was a different kind of attention being paid.” It wasn’t that she didn’t want them to arrive. From Cave Painting: “ And does she still write poems? / Not a whole one since I had been ill. / F",
+    "source": "The Guardian Culture",
+    "category": "אמנות"
+  },
+  {
+    "title": "The new Darth Vader: how tech execs became the film villains of our age",
+    "link": "https://www.theguardian.com/film/2026/oct/09/the-new-darth-vader-how-tech-execs-became-the-film-villains-of-our-age",
+    "summary": "Jeremy Strong’s portrayal of Mark Zuckerberg in The Social Reckoning shows how public opinion has changed around billionaire CEOs since The Social Network’s release When The Social Network came out, Mark Zuckerberg organised a staff viewing of a film he described as “fun” . A group corporate outing to the sequel is unlikely. Continue reading...",
+    "source": "The Guardian Culture",
+    "category": "אמנות"
+  },
+  {
+    "title": "‘Is death necessary?’: why Peter Greenaway’s assisted dying drama is stuck in post-production hell",
+    "link": "https://www.theguardian.com/film/2026/oct/09/is-death-necessary-why-peter-greenaways-assisted-dying-drama-is-stuck-in-post-production-hell",
+    "summary": "Exclusive: Three years after filming began on the contentious Lucca Mortis, starring Dustin Hoffman, the British director is still in dispute with producers over which version to release, and a battle over rights rumbles on Peter Greenaway’s new movie was supposed to mark a glorious swansong for him and his lead actor Dustin Hoffman, the Oscar-winning star of The Graduate and Tootsie. Both men were in their 80s when shooting began in Lucca, Tuscany, in late 2023. Neither knew the storms ahead or that this was going to turn into arguably the mos",
+    "source": "The Guardian Culture",
+    "category": "אמנות"
+  },
+  {
+    "title": "‘Sometimes she publishes notes she’s scribbled on her hand’: Édouard Louis on 10 reasons to love Anne Carson",
+    "link": "https://www.theguardian.com/books/2026/oct/09/sometimes-she-publishes-notes-shes-scribbled-on-her-hand-edouard-louis-on-10-reasons-to-love-anne-carson",
+    "summary": "The French author discovered Carson on a bus while stranded in a snowstorm and has been enthralled by her fearless imagination ever since Where to start with Anne Carson ‘Delights await!’: Margaret Atwood and other writers on Nobel winner Anne Carson 1. Anne Carson is one of the greatest writers of our time. I discovered her work on a Peter Pan bus from New York to New England. I’d bought Antigonick in a bookstore a few days earlier, almost randomly. From the very first lines, I was enthralled. While we were on the bus, a snowstorm suddenly bla",
+    "source": "The Guardian Books",
+    "category": "ספרים"
+  },
+  {
+    "title": "Book of Lives by Margaret Atwood audiobook review – a dryly funny memoir",
+    "link": "https://www.theguardian.com/books/2026/oct/08/book-of-lives-by-margaret-atwood-audiobook-review-a-dryly-funny-memoir",
+    "summary": "The Handmaid’s Tale author reflects on her loves, losses and literary achievements in a memoir that showcases her wisdom and wit Margaret Atwood had to be persuaded to write a memoir. The thought of writing about herself initially seemed “dead boring. Who wants to read about someone sitting at a desk messing up blank sheets of paper?” Yet, she continues, time passed and the possibility of a memoir took on a “lurid phosphorescent glow. ‘Wasn’t there something appealing in the idea?’ my sinister alter ego whispered … I could thank my benefactors,",
+    "source": "The Guardian Books",
+    "category": "ספרים"
+  },
+  {
+    "title": "The 100 best novels of all time",
+    "link": "https://www.theguardian.com/books/ng-interactive/2026/may/12/the-100-best-novels-of-all-time",
+    "summary": "The top 100 novels of all time published in English, as voted for by authors, critics and academics worldwide. How many have you read? Continue reading...",
+    "source": "The Guardian Books",
+    "category": "ספרים"
+  },
+  {
+    "title": "The best books to read in September: new paperbacks from Margaret Atwood, Kiran Desai and Richard Holmes",
+    "link": "https://www.theguardian.com/books/ng-interactive/2026/sep/18/the-best-books-to-read-in-september-new-paperbacks-from-margaret-atwood-kiran-desai-and-richard-holmes",
+    "summary": "Looking for a new reading recommendation? Here are some great new paperbacks, from an epic multigenerational saga by a Booker winner to a biography of an iconic Victorian poet *** Continue reading...",
+    "source": "The Guardian Books",
+    "category": "ספרים"
+  },
+  {
+    "title": "What we’re reading: China Miéville, Sebastian Barry, Derek Owusu and Guardian readers on the books they enjoyed in September",
+    "link": "https://www.theguardian.com/books/2026/oct/01/what-were-reading-sebastian-barry-china-mieville-readers-and-derek-owusu-on-the-books-they-enjoyed-in-september",
+    "summary": "Writers and Guardian readers discuss the titles they have read over the last month. Join the conversation in the comments I was sideswiped by Giada Scodellaro’s Ruins, Child . A brilliant, strange book that challenged me in the most exhilarating way, with its fractured language and dream-cinema visions, the sense it bestowed of walking through a corridor full of echoes. Echoes of a less elliptical but no-less political kind haunt Jordy Rosenberg’s astounding Night Night Fawn . I guess you could call it a family novel? But it’s at least as much ",
+    "source": "The Guardian Books",
+    "category": "ספרים"
+  },
+  {
+    "title": "Holding Lightning by Emily Lordi review – an intimate portrait of Whitney Houston",
+    "link": "https://www.theguardian.com/music/2026/oct/06/holding-lightning-by-emily-lordi-review-an-intimate-portrait-of-whitney-houston",
+    "summary": "An empathetic biography of the the singer recasts her tumultuous later career as a triumph of self-expression Since Whitney Houston’s death in 2012, a flurry of books and documentaries have appeared, most of them presenting her life as a cautionary tale. In this new biography, Emily Lordi, a professor of English at Vanderbilt University, refuses to reduce Houston’s story to another “good girl gone bad” narrative. Instead she presents a pluralistic take on her life in which Houston’s queerness, drug use and eccentricities are not dismissed as ab",
+    "source": "The Guardian Books",
+    "category": "ספרים"
+  },
+  {
+    "title": "Sleeping Beauties by David Byrne review – a quirky journey through the afterlife of invention",
+    "link": "https://www.theguardian.com/music/2026/oct/05/sleeping-beauties-by-david-byrne-review-a-quirky-journey-through-the-afterlife-of-invention",
+    "summary": "The Talking Heads frontman considers dormant ideas that made a comeback – from Indian irrigation to Kafka There’s barely been a moment in the last half-century when David Byrne hasn’t been zinging about, dancing forward, opting odd. The art-school dropout frontman of Talking Heads, he moved sideways into ballet, dance and experimental theatre, collaborated on the proto-ambient LP My Life in the Bush of Ghosts with his fellow polymath Brian Eno, directed films, wrote musicals (on – of course – Imelda Marcos), co-founded a label (Luaka Bop) that ",
+    "source": "The Guardian Books",
+    "category": "ספרים"
+  },
+  {
+    "title": "Rhapsody: A Manifesto by Alice Oswald review – a history of the spoken word, from Homer to Ted Hughes",
+    "link": "https://www.theguardian.com/books/2026/oct/02/rhapsody-a-manifesto-by-alice-oswald-review-a-history-of-the-spoken-word-from-homer-to-ted-hughes",
+    "summary": "A twisting, beguiling investigation into the art of poetry that ends in a call to arms on behalf of the natural world The poet Alice Oswald is no stranger to thinking in public about her art. She was Oxford professor of poetry until 2023, and her lectures are available online. But this is her first full-length book, and as such is something of an occasion. So what exactly is it? For a work of prose it contains a lot of poetry, much translated or composed by Oswald herself. Shakespeare, Donne, Shelley and Ted Hughes also feature. Though nonficti",
+    "source": "The Guardian Books",
+    "category": "ספרים"
+  },
+  {
+    "title": "On the Equality of All Things by Carlo Rovelli review – a physicist’s guide to life, the universe and everything",
+    "link": "https://www.theguardian.com/books/2026/sep/30/on-the-equality-of-all-things-by-carlo-rovelli-review-a-physicists-guide-to-life-the-universe-and-everything",
+    "summary": "Near-mystical musings from a scientist who believes we are on the brink of a revolution in understanding ourselves Under the letter “B” in the index at the back of Carlo Rovelli’s latest book you will find Francis Bacon, bats, behaviourism, Henri Bergson, and the big bang. This intriguing little miscellany reflects the sweeping ambition of what is perhaps Rovelli’s most overtly philosophical work to date . Rovelli, who directs a quantum gravity research group in Marseille, has written several books on physics for the general reader, including t",
+    "source": "The Guardian Books",
+    "category": "ספרים"
+  },
+  {
+    "title": "Other Worlds Than These by Stephen King and Peter Straub review – a self-indulgent finale to the Talisman trilogy",
+    "link": "https://www.theguardian.com/books/2026/oct/07/other-worlds-than-these-by-stephen-king-and-peter-straub-review-a-self-indulgent-finale-to-the-talisman-trilogy",
+    "summary": "There are moments of shivering joy as the protagonist of two enduring classics, Jack Sawyer, returns – but this time his journey feels endlessly repetitive Bear with me, because there is some backstory to get through before we can talk about the book I am actually here to review. Back in 1984, Stephen King and Peter Straub collaborated on the fantasy novel The Talisman. Like all the best King stories, it follows a young boy: in this case Jack Sawyer, 12, whose mother, Lily, is dying. Jack learns that a magical object called the Talisman might s",
+    "source": "The Guardian Books",
+    "category": "ספרים"
+  },
+  {
+    "title": "Partita By Barbara Kingsolver review – a midlife follow-up to Demon Copperhead",
+    "link": "https://www.theguardian.com/books/2026/oct/06/partita-by-barbara-kingsolver-review-a-quieter-follow-up-to-demon-copperhead",
+    "summary": "The sex writing threatens to throw the novel off-kilter, but there are rich rewards in this tale of music and middle-aged compromises What is the role of art in an artist’s life? Should you commit everything to honing your talent in the hope of becoming a great master? Or should you use your artistic gift to enrich your life and that of your community? In Partita, acclaimed American novelist Barbara Kingsolver grapples with these questions seriously and passionately through the story of a piano prodigy turned music teacher. The novel opens in t",
+    "source": "The Guardian Books",
+    "category": "ספרים"
+  },
+  {
+    "title": "The Housekeeper by Rose Tremain review – a bloodless origin story for Du Maurier’s Rebecca",
+    "link": "https://www.theguardian.com/books/2026/oct/05/the-housekeeper-by-rose-tremain-review-a-bloodless-origin-story-for-du-mauriers-rebecca",
+    "summary": "The novelist has expanded her devastating 2014 short story about an imagined affair between Daphne du Maurier and a fictional Polish-Jewish housekeeper The rollcall of notable novels that began life as short stories is surprisingly long and various. Two years before Clarissa Dalloway famously shopped for flowers in Virginia Woolf’s Mrs Dalloway she was shopping for gloves in Woolf’s short story Mrs Dalloway in Bond Street; Evan S Connell’s Mrs Bridge and Jeffrey Eugenides’s The Virgin Suicides began life as stories published in the Paris Review",
+    "source": "The Guardian Books",
+    "category": "ספרים"
+  },
+  {
+    "title": "The best recent poetry – review roundup",
+    "link": "https://www.theguardian.com/books/2026/oct/02/the-best-recent-poetry-review-roundup",
+    "summary": "Have It by John Cooper Clarke; The Dodo Stories by Mary Mulholland; Red River Valley by Ian McMillan; Some Sacred Harbour by Roger Robinson; Otherwhere by Carolyn Forché Have It by John Cooper Clarke (Picador, £16.99) The latest collection from the original “people’s poet” displays his characteristic swagger, delivered with a distinctively northern humour. Merging blistering social satire and brash wit, Cooper Clarke irreverently tackles themes from the ridiculous to the sublime, including the malaise of contemporary urban life, the erosion of ",
+    "source": "The Guardian Books",
+    "category": "ספרים"
+  },
+  {
+    "title": "Children’s and teens roundup – the best new picture books and novels",
+    "link": "https://www.theguardian.com/books/2026/sep/18/childrens-and-teens-roundup-the-best-new-picture-books-and-novels",
+    "summary": "A tiger’s tale; the young Henry VIII; a fantasy follow‑up from Katherine Rundell; small-town secrets; ghosts galore and more Once Upon a Tiger by Sarah Massini, S&S, £14.99 Tiger is irate to find three cheeky human cubs climbing on his back – but when they refuse to be scared off, he becomes increasingly attached to them. A sweet, classic-feeling picture book fable, heightened by tender, expressive illustrations. Mama’s Wedding by Circle Yuen, Lantana, £12.99 Mama is getting married, but Ruby has mixed emotions – how will Daddy Daniel feel on t",
+    "source": "The Guardian Books",
+    "category": "ספרים"
+  },
+  {
+    "title": "Children’s books roundup – the best new picture books and novels",
+    "link": "https://www.theguardian.com/books/2026/aug/28/childrens-books-roundup-the-best-new-picture-books-and-novels",
+    "summary": "Poetry with wonder and wit; a heartwarming tale for horse lovers; a portal to the future; a brilliant YA wartime romance and more Small Monster, Big Monster by Allan Sanders, Phaidon, £7.95 Refrigerator is EMPTY. Monster is FULL (of pizza!). An eye-wateringly bright board book, featuring splendidly zany, toddler-pleasing pairs of opposites. The Flying Machine of Dreams by Kate Wakeling , illustrated by Viviane Schwarz, Otter-Barry, £12.99 A delectable picture-book collaboration that perfectly distils the wonder of the everyday, from the texture",
+    "source": "The Guardian Books",
+    "category": "ספרים"
+  },
+  {
+    "title": "Children and teens roundup – the best new picture books and novels",
+    "link": "https://www.theguardian.com/books/2026/jun/26/children-and-teens-roundup-the-best-new-picture-books-and-novels",
+    "summary": "A mouse detective; a fresh take on the Odyssey; a dangerous wish; and the world’s most watched reality TV show My Dad Can by Stephen Lightbown, illustrated by Claire Sahara Lemp, Quarto, £7.99 Iris’s dad can turn into dinosaurs, unicorns, anything she imagines – though some people see Dad’s wheelchair and believe he can’t do anything. This soft-smudged, colourful picture book celebrates the playfulness and creativity of parenthood. The Fluffy Futon by Yuichi Kasano, translated by Cathy Hirano, Gecko, £12.99 When Grandma spreads a futon on the s",
+    "source": "The Guardian Books",
+    "category": "ספרים"
+  },
+  {
+    "title": "Children and teens roundup – the best new picture books and novels",
+    "link": "https://www.theguardian.com/books/2026/may/22/children-and-teens-roundup-the-best-new-picture-books-and-novels",
+    "summary": "A bunny who loves to bake, illustrated poems about amazing animals and a YA verse novel of dancefloor salvation Ban Ban’s Bakery by Elena Hiroko Magee, Do Re Mi, £12.99 Ban Ban the bunny loves baking with Grandma – but will she be able to turn Dusty Cottage into a bakery of her very own? A cute, enticing picture book full of mouthwatering, pastel-hued treats. Daddy Is Cleaning by Angel Dike , illustrated by Ebony Glenn, Nosy Crow, £12.99 Baby is helping with laundry, cooking and planting – so Daddy is cleaning, a lot! This tender picture book p",
+    "source": "The Guardian Books",
+    "category": "ספרים"
+  },
+  {
+    "title": "‘We have been dispossessed’: Nick Hayes on land rights and a peaceful revolution at the real Toad Hall",
+    "link": "https://www.theguardian.com/books/2026/oct/04/we-have-been-dispossessed-nick-hayes-on-land-rights-and-a-peaceful-revolution-at-the-real-toad-hall",
+    "summary": "The co-founder of the Right to Roam campaign and author of The Book of Trespass discusses the Oxfordshire riverside community he calls home and how Hardwick Hall has been taken back by the people On the banks of the Thames in South Oxfordshire, the Hardwick estate has been owned by the Rose family for generations. When Sir Charles Rose, a banker, sportsman, yachtsman and aviator, sped through the lanes in his Rolls-Royce in the early days of motoring, he inspired Kenneth Grahame to create Mr Toad in The Wind in the Willows. Grahame’s character ",
+    "source": "The Guardian Books",
+    "category": "ספרים"
+  },
+  {
+    "title": "‘I thought, if I’m going to die, I’m going to write a book first’: Pachinko author Min Jin Lee",
+    "link": "https://www.theguardian.com/books/2026/oct/03/i-thought-if-im-going-to-die-im-going-to-write-a-book-first-pachinko-author-min-jin-lee",
+    "summary": "Her last novel sold 5m copies and was adapted into a hit series. Nearly 10 years on, the Korean-American author has written another epic. She discusses ambition and the diagnosis that inspired her to leave work and write Back in 1995, when she was in her mid-20s, Min Jin Lee quit her job as a corporate lawyer. As a teenager she had been diagnosed as a hepatitis B carrier and doctors told her she was highly likely to develop liver cancer in her 20s or 30s. “I thought, if I’m going to die, I’m going to write a book first,” the now 57-year-old Kor",
+    "source": "The Guardian Books",
+    "category": "ספרים"
+  },
+  {
+    "title": "Tomi Adeyemi on the film of her hit novel Children of Blood and Bone: ‘I don’t plan to watch it’",
+    "link": "https://www.theguardian.com/books/2026/sep/27/tomi-adeyemi-on-the-film-of-her-hit-novel-children-of-blood-and-bone-i-dont-plan-to-watch-it",
+    "summary": "Her debut earned a record-breaking YA book deal – then came her fallout with Hollywood. The author talks about the pressures of success and why she is pictured on the cover of her new novel There is a photograph of Tomi Adeyemi staring out from the cover of her new novel, The Siren. It is an arresting image: her face fills the frame, unsoftened by a smile, her piercing gaze fixed directly on the viewer. “It’s terrifying – like the Mona Lisa, staring at you everywhere,” she says, laughing. Using an author portrait on the cover of a novel is high",
+    "source": "The Guardian Books",
+    "category": "ספרים"
+  },
+  {
+    "title": "Do humans really have a ‘lizard brain’ lurking beneath our rational minds?",
+    "link": "https://www.theguardian.com/science/2026/oct/04/lizard-brain-rational-mind-neuroscience",
+    "summary": "It’s a powerful analogy that captured the popular imagination, but the biological reality is quite different Humans have a cognitive quirk for the number three. Think of the many stories that use it, from The Three Little Pigs to Goldilocks and the Three Bears and The Three Musketeers. Public information and political campaigns use it for impact and ease of recall (“Stop, look and listen”; “See it. Say it. Sorted”; “Reduce, reuse, recycle”). And then there are psychological or philosophical frameworks: Freud with his id, ego and superego; Plato",
+    "source": "The Guardian Books",
+    "category": "ספרים"
+  },
+  {
+    "title": "‘She made Mondays something to look forward to’: readers pay tribute to Carol Rumens, Guardian’s Poem of the week columnist",
+    "link": "https://www.theguardian.com/books/2026/may/08/readers-tribute-to-carol-rumens-poem-of-the-week-columnist",
+    "summary": "Rumens, whose column ran for nearly 20 years and developed a loyal readership, died this week aged 81 Carol was an excellent commentator on poetry, shrewd and deep-thinking but able to express her thoughts in plain English rather than academic jargon. Her taste in poems was eclectic and very original; one didn’t always share it, but it was never predictable or dull. Sheenagh Pugh, Shetland Continue reading...",
+    "source": "The Guardian Books",
+    "category": "ספרים"
+  },
+  {
+    "title": "Zelenskyy furious as Trump announces deal to buy Russian diesel",
+    "link": "https://www.theguardian.com/us-news/2026/oct/09/trump-putin-russian-diesel-ukraine",
+    "summary": "US president says agreement needed to lower American fuel prices, but move likely to create fresh crisis with Ukraine and Nato allies Donald Trump was on a fresh collision course with the Ukrainian president, Volodymyr Zelenskyy, and European allies after a stunning agreement to buy Russian diesel, upending years of US and western pressure on the Kremlin to end its four-and-a-half year war against Ukraine. Zelenskyy reacted furiously to Trump’s announcement of the deal with Vladimir Putin , calling it “absolutely terrible” and “not fair and not",
+    "source": "The Guardian Business",
+    "category": "עסקים"
+  },
+  {
+    "title": "Create new pre-apprenticeship scheme to close youth unemployment gap, says Milburn",
+    "link": "https://www.theguardian.com/education/2026/oct/10/pre-apprenticeship-scheme-landmark-alan-milburn-youth-jobs-crisis-report",
+    "summary": "Exclusive: Former minister’s review warns that dramatic action is needed over huge drop in youth apprenticeship starts A national apprenticeship readiness scheme should be introduced in England to close the gap for young people between leaving school and starting work, the government is to be told. Alan Milburn, who is leading a major review into Britain’s youth jobs crisis , will call for a new “national pre-apprenticeship route” to offer young people further education, training and work experience. Continue reading...",
+    "source": "The Guardian Business",
+    "category": "עסקים"
+  },
+  {
+    "title": "Telegraph owner poised to make newsroom job cuts in investment promise U-turn",
+    "link": "https://www.theguardian.com/media/2026/oct/10/telegraph-owner-axel-springer-newsroom-job-cuts-u-turn",
+    "summary": "Exclusive: German media group Axel Springer said to be planning between 50 and 100 editorial redundancies The new owner of the Telegraph is preparing to make significant job cuts to its newsroom, just months after stating it would invest in the title to make it the “leading centre-right media outlet in the English-speaking world”. Axel Springer, the German media company overseen by its billionaire chief executive, Mathias Döpfner, is understood to be examining proposals that would make between 50 and 100 journalists redundant. Continue reading.",
+    "source": "The Guardian Business",
+    "category": "עסקים"
+  },
+  {
+    "title": "France’s dilemma: protesters demand spending as markets require fiscal restraint",
+    "link": "https://www.theguardian.com/world/2026/oct/10/france-caught-between-bond-markets-student-worker-blockades",
+    "summary": "Waves of protests expose debt crisis faced by French government, but political wrangling is stalling an escape plan. Is there a way out? Eight years have passed since rising fuel prices brought the gilets jaunes (yellow vest) demonstrators to the streets of France, prompting the first big crisis of Emmanuel Macron’s time in the Élysée Palace. As the French president contemplates his exit next year, turmoil has again gripped the streets in the form of student protests , but this time the financial markets are unhappy too. Continue reading...",
+    "source": "The Guardian Business",
+    "category": "עסקים"
+  },
+  {
+    "title": "UK must not be beholden to foreign AI, says head of Alan Turing Institute",
+    "link": "https://www.theguardian.com/technology/2026/oct/10/uk-foreign-ai-head-alan-turing-institute-george-williamson",
+    "summary": "George Williamson says ‘national resilience’ is key focus of ATI amid US and China’s runaway leadership in field The UK must not become dependent on foreign AI systems that can be switched off at short notice and must develop its own versions of the technology, according to the head of the Alan Turing Institute. The country needs a stronger domestic position in AI in response to the US and China’s runaway leadership in the field, with “national resilience” a key focus for ATI said George Williamson. Continue reading...",
+    "source": "The Guardian Business",
+    "category": "עסקים"
+  },
+  {
+    "title": "UK savings: 5% interest rate deals may not last, say experts",
+    "link": "https://www.theguardian.com/money/2026/oct/10/uk-savings-interest-rate-deals-nsi-bonds",
+    "summary": "Competition is hotting up, with National Savings & Investments lifting rates to the highest in years National Savings and Investments (NS&I) has increased the returns on some of its accounts, with many now paying more than 5% for the first time in nearly three years. Competition in the savings market has been growing, leading to some of the highest interest rates for years . Continue reading...",
+    "source": "The Guardian Business",
+    "category": "עסקים"
+  },
+  {
+    "title": "AI surveillance startup Flock to cut several hundred jobs amid backlash, sources say",
+    "link": "https://www.theguardian.com/world/2026/oct/09/flock-job-cuts",
+    "summary": "Company, which grown rapidly in recent years, has been under scrutiny as privacy concerns grow Flock Safety plans to shed about 18% of its employees, people with direct ⁠knowledge of the plans said on Thursday, as the maker of AI -powered surveillance cameras and license-plate readers faces mounting opposition to its products from communities and ⁠lawmakers. The people said the job ⁠cuts came after ​a voluntary buyout program and were expected to affect roughly 270 employees at Flock, a surveillance technology startup that has seen rapid growth",
+    "source": "The Guardian Business",
+    "category": "עסקים"
+  },
+  {
+    "title": "Trump establishes committee to investigate Fed governor Lisa Cook",
+    "link": "https://www.theguardian.com/business/2026/oct/09/trump-investigate-lisa-cook-fed-governor",
+    "summary": "US president renews his efforts to oust Cook despite supreme court ruling that her firing was unconstitutional Donald Trump announced on Friday that he is establishing a committee to investigate Lisa Cook, the US Federal Reserve governor, over allegations that she committed mortgage fraud, renewing his efforts to oust her despite a June supreme court ruling that her earlier firing was unconstitutional. Trump said a committee will consult with justice department officials to decide whether there is “cause” for her removal. The White House will h",
+    "source": "The Guardian Business",
+    "category": "עסקים"
+  },
+  {
+    "title": "Thieves make off with €5m haul from prestigious Italian winery",
+    "link": "https://www.theguardian.com/world/2026/oct/09/thieves-make-off-with-haul-from-prestigious-italian-winery-marchesi-antinori",
+    "summary": "Gang breaks into cellar of Marchesi Antinori in Cortona and loads two trucks with 30,000 bottles before getaway Thousands of bottles of wine worth €5m (£4.2m) have been stolen from a prestigious winery in Tuscany in what is thought to be the biggest heist of its kind in Italy. A gang of at least seven masked individuals broke into the cellar of Marchesi Antinori, a family-owned winery dating back to the late 1300s, in Cortona after shutting off the alarms and surveillance cameras before using company forklifts to load two large trucks with 30,0",
+    "source": "The Guardian Business",
+    "category": "עסקים"
+  },
+  {
+    "title": "Heathrow’s third runway is a bottomless money pit. Stop it now | Simon Jenkins",
+    "link": "https://www.theguardian.com/commentisfree/2026/oct/09/heathrow-third-runway-money-pit",
+    "summary": "It won’t promote growth, will take decades and will swallow up billions of taxpayers’ money. The only winner will be the airport’s owners Infrastructure sends politicians berserk. Propose more money for the health service or reopening youth clubs and frowns break out all round. Can we afford it? But shout infrastructure and cheers go up. The word suggests glamour, chest-beating and “growth”. Reason flies out of the window. The saga of Heathrow’s third runway beggars belief. A foreign-owned private company wants to make more money out of its cra",
+    "source": "The Guardian Business",
+    "category": "עסקים"
+  },
+  {
+    "title": "British households would be £5,000 richer if we were more innovative. Let’s unleash our talents | Gordon Brown",
+    "link": "https://www.theguardian.com/commentisfree/2026/oct/09/gordon-brown-british-households-5000-richer-innovation",
+    "summary": "We have a deep reservoir of assets, but struggle to turn small companies into global success stories. Innovation needs to be at the heart of government policy Gordon Brown was UK prime minister from 2007 to 2010 The coming 10 years are almost certain to be the decade that sees the greatest scientific breakthroughs in a century. The question is whether advances now under way in AI, quantum computing and biology can address cancer, find ways to treat or prevent dementia, and overcome the growing resistance to antibiotics. Can we find sustainable ",
+    "source": "The Guardian Business",
+    "category": "עסקים"
+  },
+  {
+    "title": "What will Democrats do if they win Congress? Here are their priorities",
+    "link": "https://www.theguardian.com/us-news/2026/oct/09/democrats-control-house-senate-priorities",
+    "summary": "Control of Congress after the 2026 midterm elections would give Democrats power to subpoena documents and testimony In August, Jamie Raskin renewed his demand that Jared Kushner hand over documents about the overlap between his informal role advising Donald Trump on foreign policy and the private equity firm he runs after an earlier request was ignored. Five of the 11 companies that Elizabeth Warren, Chuck Schumer and Ron Wyden wrote to about Donald Trump’s IRS settlement – including the Trump Organization and World Liberty Financial – never an",
+    "source": "The Guardian Business",
+    "category": "עסקים"
+  },
+  {
+    "title": "AI and the climate crisis pose existential risks. The law offers a way to reduce them | Robert Reich",
+    "link": "https://www.theguardian.com/commentisfree/2026/oct/09/ai-climate-change-liability-lawsuits",
+    "summary": "Liability lawsuits have held tobacco, oil and pharma companies to account in the past. AI investors won’t ignore this threat The most basic function of government is to protect people from harm. Two growing phenomena – the climate crisis and AI – pose escalating risks of extraordinary harm. The climate crisis is already causing floods, wildfires, drought and record heat. AI agents are already escaping super-secure environments to hack into systems they’re supposed to avoid. Robert Reich, a former US secretary of labor, is a professor of public ",
+    "source": "The Guardian Business",
+    "category": "עסקים"
+  },
+  {
+    "title": "Burnham, take note: water shareholders have their uses – they can be squeezed for cash | Nils Pratley",
+    "link": "https://www.theguardian.com/business/nils-pratley-on-finance/2026/oct/07/andy-burnham-water-shareholders-pennon-south-west-water",
+    "summary": "Owner of South West Water, Bristol Water and Bournemouth Water is tapping its investors for £550m after sewage spills South West Water owner taps investors after sewage spills Water is “a service where the shareholders never lose and the public never win,” Andy Burnham, the prime minister, told the Labour party conference last week , reflecting the popular feeling towards the industry in England. And, of course, his big-picture point is familiar: the £80bn, or thereabouts, that has been paid in dividends over the past 35 years represented over-",
+    "source": "The Guardian Business",
+    "category": "עסקים"
+  },
+  {
+    "title": "Badenoch’s inheritance tax gambit makes no economic sense | Heather Stewart",
+    "link": "https://www.theguardian.com/politics/2026/oct/07/badenochs-inheritance-tax-gambit-makes-no-economic-sense",
+    "summary": "The Tory leader’s proposal to slash the tax would shovel £6bn of taxpayer money to the already-wealthy Kemi Badenoch’s inheritance tax gambit is a Conservative classic. After all, it was George Osborne’s high-profile pledge to “take the family home out of inheritance tax” in 2007 that put Gordon Brown off calling a snap general election. In practice, Osborne’s plan involved a £1m threshold for inheritance tax – and given the global financial crisis had blown a hole in the public finances by the time the Conservative-Lib Dem coalition came to po",
+    "source": "The Guardian Business",
+    "category": "עסקים"
+  },
+  {
+    "title": "Will the Zuckerberg, Musk and Altman movies make a dent on tech giant evangelism?",
+    "link": "https://www.theguardian.com/film/2026/oct/07/the-social-reckoning-musk-and-artificial-zuckerberg-musk-and-altman-movies-tech",
+    "summary": "The triple release of The Social Reckoning, Musk and Artificial is less a clear political stance, more like movie studio opportunism Hollywood is sending a clear message: it’s a friend of tech. Netflix is no longer a lone disruptor: historic studio MGM is now the property of Amazon’s Jeff Bezos; David Ellison’s takeover of Paramount and subsequent Warner Bros merger was supported by his tech giant father; and Apple TV has acted as a patron for multiple film-maker passion projects. Everyone, including trendy auteur-factory A24, is tying themselv",
+    "source": "The Guardian Business",
+    "category": "עסקים"
+  },
+  {
+    "title": "Beware rightwing economic myths such as ‘maxing out the nation’s credit card’ | Letters",
+    "link": "https://www.theguardian.com/business/2026/oct/07/beware-rightwing-economic-myths-such-as-maxing-out-the-nations-credit-card",
+    "summary": "Readers respond to an article in which Larry Elliott argues that Andy Burnham must challenge neoliberal nostrums Larry Elliott’s column on the rightwing economic myths constraining Andy Burnham’s government should be required reading before John Healey’s budget ( Rightwing economic myths could derail Burnham’s project – to destroy them, look to Keynes, 1 October ). I spent 20 years trading bonds, and agree that the household budget analogy bears no relation to how the UK state finances itself. Parliament votes on the spending, the Treasury inst",
+    "source": "The Guardian Business",
+    "category": "עסקים"
+  },
+  {
+    "title": "Ex-Deutsche Bank trader has conviction for rigging interest rates quashed",
+    "link": "https://www.theguardian.com/business/2026/oct/09/christian-bittar-conviction-rigging-interest-rates-quashed-euribor",
+    "summary": "Christian Bittar becomes eighth person to clear their name, days after five former Barclays bankers were acquitted Former City trader Christian Bittar has become the eighth person to have his conviction for rigging interest rates quashed, just days after five other former bankers also successfully cleared their names . Christian Bittar, who previously worked for Deutsche Bank, was convicted in 2018 of conspiracy to defraud. Continue reading...",
+    "source": "The Guardian Business",
+    "category": "עסקים"
+  },
+  {
+    "title": "China agrees to ‘halve’ hybrid car exports to EU in landmark deal",
+    "link": "https://www.theguardian.com/business/2026/oct/09/china-agrees-to-curb-hybrid-car-exports-to-eu-in-landmark-deal",
+    "summary": "Brussels says Beijing’s shipments could fall by more than half over four years, cutting millions of vehicles amid fears for European jobs The EU said it has reached a landmark deal with China to “halve” its sales of hybrid cars in the bloc amid fears surging sales could kill off parts of the European car industry. Trade commissioner Maroš Šefčovič said the deal was the first of its kind and the result of “intense” negotiations with China since June to curb a trade deficit of €1.18bn (£1bn) a day, which has caused mounting tensions between the t",
+    "source": "The Guardian Business",
+    "category": "עסקים"
+  },
+  {
+    "title": "Tory tax break for banks has cost UK public purse £6bn, says TUC",
+    "link": "https://www.theguardian.com/money/2026/oct/09/tory-tax-break-banks-cost-uk-public-purse-tuc",
+    "summary": "Exclusive: Chancellor urged to reverse Jeremy Hunt’s tax surcharge cuts to claw back billions in lost revenue Business live – latest updates Tax cuts for big banks have deprived the UK government of £6bn in revenues, according to campaigners, who are calling on the chancellor, John Healey, to increase taxes and force lenders to pay their “fair share” in the budget. Calculations by the Trades Union Congress (TUC), which represents unions with more than 5.3 million members across England and Wales, shows that the public purse is billions of pound",
+    "source": "The Guardian Business",
+    "category": "עסקים"
+  },
+  {
+    "title": "Shein outsells British rival Asos as UK revenue hits £2.58bn",
+    "link": "https://www.theguardian.com/business/2026/oct/09/shein-outsells-british-rival-asos-as-uk-revenue-hits-258bn",
+    "summary": "Online retailer’s 26% jump sharpens focus on exemption letting cheap parcels into the country duty-free Shein, the online fast-fashion retailer founded in China, increased sales in the UK by just over a quarter last year, overtaking its British rival Asos. The company, whose global parent group listed on the Hong Kong stock exchange valued at just over $26bn (£19.6bn) last month, increased sales at its UK division by 26% to £2.58bn, according to accounts filed at Companies House. Continue reading...",
+    "source": "The Guardian Business",
+    "category": "עסקים"
+  },
+  {
+    "title": "Virgin unveils its future cross-Channel train as it gears up to take on Eurostar",
+    "link": "https://www.theguardian.com/business/2026/oct/09/virgin-cross-channel-train-eurostar",
+    "summary": "Group plans to launch services from London in 2030 and hopes to outshine competitor with design inspiration from its airline, cruise and hotel arms Flash interiors, fancy food and maybe even a bar: Virgin has unveiled a mock-up of its future cross-Channel train, with a pledge to create “something genuinely new”. The group is planning to launch rail services from London to the continent in 2030, with Eurostar facing competition for the first time since the opening of the Channel tunnel. Continue reading...",
+    "source": "The Guardian Business",
+    "category": "עסקים"
+  },
+  {
+    "title": "Revealed: the ‘black box’ wastewater trade that rakes in millions for UK utility companies",
+    "link": "https://www.theguardian.com/environment/2026/oct/09/uk-water-companies-industrial-commercial-wastewater-sewage-treatment",
+    "summary": "Exclusive: Firms made more than £340m last year from processing industrial and commercial wastewater at sewage works that are unable to remove many chemical pollutants Water companies in the UK made more than £340m in revenue last year by pouring billions of litres of industrial and commercial wastewater into sewage treatment works that experts say are not designed to remove most chemicals, leaving pollutants to pass into rivers, seas and farmland. Water companies in England are required by law to take industrial wastewater and issue permits ca",
+    "source": "The Guardian Business",
+    "category": "עסקים"
+  },
+  {
+    "title": "‘This is not an anti-tech town’: backlash to datacenter in city once home to IBM",
+    "link": "https://www.theguardian.com/us-news/2026/oct/09/datacenter-backlash-ibm-east-fishkill-new-york",
+    "summary": "Fight in East Fishkill, New York, part of a growing divide over whether AI benefits outweigh enormous downsides For decades, East Fishkill helped build New York’s tech industry. The hamlet, located 70 miles north of New York City, was home to a 460-acre campus where IBM researched and manufactured semiconductor chips for nearly 50 years. Continue reading...",
+    "source": "The Guardian Business",
+    "category": "עסקים"
+  },
+  {
+    "title": "Supermarket shake-up: why Asda or Morrisons could vanish within a decade",
+    "link": "https://www.theguardian.com/business/2026/oct/08/supermarket-shakeup-big-brands-ripe-merger",
+    "summary": "Talks between Sainsbury’s and Morrisons have set industry tongues wagging, with analysts saying the market is ripe for change Tesco lifts profit forecast and says shoppers are resilient They may be two of the most recognisable brands in Britain, with a combined 188 years serving shoppers, but industry watchers agree that either Asda or Morrisons – or both – could disappear within a decade. This week, it emerged that Sainsbury’s and Morrisons – the UK’s second- and sixth-largest supermarket chains – had held merger talks between last November an",
+    "source": "The Guardian Business",
+    "category": "עסקים"
+  },
+  {
+    "title": "China’s succession crisis: a generation of entrepreneurs is retiring, but are their children ready to take over?",
+    "link": "https://www.theguardian.com/world/2026/oct/08/china-succession-crisis-factory-workers-manufacturing-family-businesses",
+    "summary": "Family run private businesses helped power China’s economic miracle, but the next generation is finding it difficult to carry on the work of their parents Growing up, Ayu would watch his parents put together hand made leather shoes on the ground floor of their three storey home in the Chinese city of Wenzhou. Their relatives in Europe would send photographs of designer products from Italy for the workers to base their designs on, and in the decades that followed, the tiny family-run workshop transformed into a 700 person factory. “The factory a",
+    "source": "The Guardian Business",
+    "category": "עסקים"
+  },
+  {
+    "title": "The Jaguar Type 01: a £150k gargantuan getaway vehicle utterly useless in the city",
+    "link": "https://www.theguardian.com/business/2026/oct/07/jaguar-type-01-g-car-review",
+    "summary": "Too costly for most, too large for UK car parks, and wheels bigger than a warlord’s pickup truck. But it does come in ‘London red’ Jaguar targets young Americans with Type 01 EV The cutting-edge car du jour, even while very few will ever buy one, is a good index of what the world’s coming to. It’s a dress-for-the-job-you-want principle, on wheels: drive for the world you want to inhabit. That’s why when Tesla launched the Model X with a bioweapon defence mode (2016!), we should have been much more worried than we were, and it’s why the Jaguar T",
+    "source": "The Guardian Business",
+    "category": "עסקים"
+  },
+  {
+    "title": "Poland’s ‘solidarity’ push for EU energy resilience in face of Russian aggression",
+    "link": "https://www.theguardian.com/world/2026/oct/07/poland-solidarity-eu-energy-resilience-russian-aggression-economy",
+    "summary": "In the second article in a series on the Polish economy, we look at how the country is forging closer ties with its neighbours Two miles off the coast of Gdańsk, the white steel piles of Poland’s first offshore gas terminal rise from the slate-grey Baltic. Installed at a height eight metres above the waves, the floating cranes and construction vessels here are on the frontline of Europe’s push for energy security. Since the taps were turned off on Russian gas after Vladimir Putin’s invasion of Ukraine four years ago, Poland has turned to the gl",
+    "source": "The Guardian Business",
+    "category": "עסקים"
+  }
 ]
-
-def clean(value):
-    value = re.sub(r'<[^>]+>', ' ', value or '')
-    return re.sub(r'\s+', ' ', html.unescape(value)).strip()[:550]
-
-def local(el, name):
-    for child in el:
-        if child.tag.rsplit('}',1)[-1] == name:
-            return (child.text or '').strip()
-    return ''
-
-def extract(body, source, category):
-    root = ET.fromstring(body)
-    entries = [e for e in root.iter() if e.tag.rsplit('}',1)[-1] in ('item','entry')]
-    out = []
-    for e in entries[:30]:
-        title = clean(local(e,'title'))
-        link = local(e,'link')
-        if not link:
-            for c in e:
-                if c.tag.rsplit('}',1)[-1]=='link' and c.attrib.get('href'):
-                    link=c.attrib['href']; break
-        summary=clean(local(e,'description') or local(e,'summary') or local(e,'content'))
-        if not title or not link.startswith(('https://','http://')): continue
-        out.append({'title':title,'link':link,'summary':summary,'source':source,'category':category})
-    return out
-
-old_path=Path('news.json')
-try: old=json.loads(old_path.read_text(encoding='utf-8'))
-except (OSError,ValueError): old=[]
-collected=[]
-for source,category,url in FEEDS:
-    try:
-        req=urllib.request.Request(url,headers={'User-Agent':'PersonalNewsPortal/1.0 (+RSS reader)'})
-        with urllib.request.urlopen(req,timeout=15) as response:
-            articles=extract(response.read(3_000_000),source,category)
-        print(source,len(articles)); collected+=articles
-    except Exception as exc:
-        print('SKIPPED',source,str(exc)[:160])
-# Preserve previous headlines when individual feeds are temporarily unavailable.
-seen=set(); result=[]
-for item in collected+old:
-    url=item.get('link','')
-    if not url or url in seen: continue
-    seen.add(url); result.append(item)
-    if len(result)>=250:break
-old_path.write_text(json.dumps(result,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
-print('Saved',len(result),'articles at',datetime.now(timezone.utc).isoformat())
